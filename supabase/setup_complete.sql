@@ -618,3 +618,65 @@ BEGIN
   RETURN 'Administrator authorized successfully.';
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ─── Step 12: Studio Photos Library & SEO Selection ──────────
+CREATE TABLE IF NOT EXISTS public.studio_photos (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  title TEXT NOT NULL,
+  description TEXT,
+  image_url TEXT NOT NULL,
+  storage_path TEXT,
+  category TEXT NOT NULL DEFAULT 'control-room',
+  display_order INTEGER NOT NULL DEFAULT 1,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  is_seo_image BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_studio_photos_active_order ON public.studio_photos (is_active, display_order);
+CREATE INDEX IF NOT EXISTS idx_studio_photos_category ON public.studio_photos (category);
+CREATE INDEX IF NOT EXISTS idx_studio_photos_order ON public.studio_photos (display_order);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_studio_photos_seo_unique 
+  ON public.studio_photos (is_seo_image) 
+  WHERE is_seo_image = TRUE;
+
+ALTER TABLE public.studio_photos ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Public select studio_photos" ON public.studio_photos;
+DROP POLICY IF EXISTS "Admins manage studio_photos" ON public.studio_photos;
+
+CREATE POLICY "Public select studio_photos" ON public.studio_photos
+  FOR SELECT USING (is_active = TRUE OR (SELECT public.is_admin()) OR auth.role() = 'authenticated');
+
+CREATE POLICY "Admins manage studio_photos" ON public.studio_photos
+  FOR ALL USING ((SELECT public.is_admin()) OR auth.role() = 'authenticated')
+  WITH CHECK ((SELECT public.is_admin()) OR auth.role() = 'authenticated');
+
+CREATE OR REPLACE FUNCTION public.set_studio_photo_seo(target_photo_id UUID)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  target_url TEXT;
+BEGIN
+  SELECT image_url INTO target_url FROM public.studio_photos WHERE id = target_photo_id;
+  IF target_url IS NULL THEN
+    RAISE EXCEPTION 'Studio photo not found';
+  END IF;
+
+  UPDATE public.studio_photos
+  SET is_seo_image = FALSE, updated_at = NOW()
+  WHERE is_seo_image = TRUE;
+
+  UPDATE public.studio_photos
+  SET is_seo_image = TRUE, updated_at = NOW()
+  WHERE id = target_photo_id;
+
+  UPDATE public.site_settings
+  SET og_image_url = target_url, updated_at = NOW()
+  WHERE id IS NOT NULL;
+END;
+$$;

@@ -101,6 +101,30 @@ export interface HomeMediaItem {
   updated_at: string
 }
 
+export type StudioPhotoCategory =
+  | 'control-room'
+  | 'recording-booth'
+  | 'podcast-setup'
+  | 'equipment'
+  | 'studio-exterior'
+  | 'studio-interior'
+  | 'live-room'
+  | 'other'
+
+export interface StudioPhoto {
+  id: string
+  title: string
+  description?: string | null
+  image_url: string
+  storage_path?: string | null
+  category: StudioPhotoCategory | string
+  display_order: number
+  is_active: boolean
+  is_seo_image: boolean
+  created_at: string
+  updated_at: string
+}
+
 export interface Service {
   id: string
   name: string

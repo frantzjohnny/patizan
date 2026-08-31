@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, Calendar, CalendarDays, Users, Briefcase, DollarSign,
   Image, Music, ListMusic, Mic2, MessageSquareQuote, FileText, Clock, Ban, Building2,
-  Settings, Shield, X, Layers, Activity,
+  Settings, Shield, X, Layers, Activity, Camera, LayoutGrid,
 } from 'lucide-react'
 import { cn } from '../../../lib/utils'
 import { ADMIN_NAV } from '../../../lib/constants'
@@ -11,7 +11,7 @@ import { ADMIN_NAV } from '../../../lib/constants'
 const ICON_MAP: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
   LayoutDashboard, Calendar, CalendarDays, Users, Briefcase, DollarSign,
   Image, Music, ListMusic, Mic2, MessageSquareQuote, FileText, Clock, Ban, Building2,
-  Settings, Shield, Layers, Activity,
+  Settings, Shield, Layers, Activity, Camera, LayoutGrid,
 }
 
 interface AdminSidebarProps {

@@ -101,6 +101,7 @@ export const ADMIN_NAV = [
     section: 'Content',
     items: [
       { href: '/admin/hero-slides', label: 'Hero Slider', icon: 'Layers' },
+      { href: '/admin/studio-photos', label: 'Studio Photos', icon: 'Camera' },
       { href: '/admin/home-media', label: 'Home Media', icon: 'LayoutGrid' },
       { href: '/admin/services', label: 'Services', icon: 'Briefcase' },
       { href: '/admin/pricing', label: 'Pricing', icon: 'DollarSign' },

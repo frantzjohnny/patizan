@@ -33,6 +33,7 @@ const CalendarPage = lazy(() => import('./pages/admin/CalendarPage'))
 const CustomersPage = lazy(() => import('./pages/admin/CustomersPage'))
 const ServicesAdminPage = lazy(() => import('./pages/admin/ServicesAdminPage'))
 const HeroSlidesAdminPage = lazy(() => import('./pages/admin/HeroSlidesAdminPage'))
+const StudioPhotosAdminPage = lazy(() => import('./pages/admin/StudioPhotosAdminPage'))
 const HomeMediaAdminPage = lazy(() => import('./pages/admin/HomeMediaAdminPage'))
 const PricingAdminPage = lazy(() => import('./pages/admin/PricingAdminPage'))
 const GalleryAdminPage = lazy(() => import('./pages/admin/GalleryAdminPage'))
@@ -176,6 +177,7 @@ function App() {
               <Route path="/admin/customers" element={<CustomersPage />} />
               <Route path="/admin/services" element={<ServicesAdminPage />} />
               <Route path="/admin/hero-slides" element={<HeroSlidesAdminPage />} />
+              <Route path="/admin/studio-photos" element={<StudioPhotosAdminPage />} />
               <Route path="/admin/home-media" element={<HomeMediaAdminPage />} />
               <Route path="/admin/pricing" element={<PricingAdminPage />} />
               <Route path="/admin/gallery" element={<GalleryAdminPage />} />

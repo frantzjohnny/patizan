@@ -2,9 +2,10 @@ import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
+import { useStudioPhotos } from '../../../hooks/useStudioPhotos'
 import { useHomeMedia } from '../../../hooks/useHomeMedia'
 
-const DEFAULT_ITEMS = [
+const DEFAULT_SLOTS = [
   {
     slot_key: 'home_showcase_1',
     src: '/images/studio-placeholder.svg',
@@ -45,16 +46,29 @@ const DEFAULT_ITEMS = [
 export default function StudioShowcase() {
   const ref = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref, { once: true, amount: 0.1 })
-  const { data: mediaItems } = useHomeMedia()
 
-  const items = DEFAULT_ITEMS.map((item) => {
-    const found = mediaItems?.find((m) => m.slot_key === item.slot_key)
-    return {
-      ...item,
-      src: found?.image_url || item.src,
-      alt: found?.alt_text || item.alt,
-    }
-  })
+  const { data: studioPhotos = [] } = useStudioPhotos(true)
+  const { data: mediaItems = [] } = useHomeMedia()
+
+  // Build dynamic grid items: prioritize studio_photos, fallback to home_media slots
+  const items = studioPhotos.length > 0
+    ? studioPhotos.slice(0, 5).map((photo, i) => ({
+        id: photo.id,
+        src: photo.image_url,
+        label: photo.title,
+        alt: photo.title,
+        span: i === 0 ? 'lg:col-span-2 lg:row-span-2' : '',
+      }))
+    : DEFAULT_SLOTS.map((slot) => {
+        const found = mediaItems.find((m) => m.slot_key === slot.slot_key)
+        return {
+          id: slot.slot_key,
+          src: found?.image_url || slot.src,
+          label: found?.title?.replace(/^Studio Showcase \d+ — /, '') || slot.label,
+          alt: found?.alt_text || slot.alt,
+          span: slot.span,
+        }
+      })
 
   return (
     <section className="section bg-black overflow-hidden">
@@ -91,29 +105,31 @@ export default function StudioShowcase() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map((item, i) => (
             <motion.div
-              key={item.label}
+              key={item.id || item.label}
               className={`relative group overflow-hidden rounded-2xl cursor-pointer ${item.span}`}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={isInView ? { opacity: 1, scale: 1 } : {}}
               transition={{ delay: 0.1 + i * 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             >
-              <div className={`aspect-square ${i === 0 ? 'lg:aspect-auto lg:h-full min-h-[300px]' : ''}`}>
-                <img
-                  src={item.src}
-                  alt={item.alt}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                <div className="absolute inset-0 bg-orange/0 group-hover:bg-orange/5 transition-colors duration-300" />
+              <Link to="/studio" className="block w-full h-full">
+                <div className={`aspect-square ${i === 0 ? 'lg:aspect-auto lg:h-full min-h-[300px]' : ''}`}>
+                  <img
+                    src={item.src}
+                    alt={item.alt}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-orange/0 group-hover:bg-orange/5 transition-colors duration-300" />
 
-                {/* Label */}
-                <div className="absolute bottom-4 left-4">
-                  <span className="font-heading font-semibold text-sm text-offwhite/80 group-hover:text-offwhite transition-colors">
-                    {item.label}
-                  </span>
+                  {/* Label */}
+                  <div className="absolute bottom-4 left-4">
+                    <span className="font-heading font-semibold text-sm text-offwhite/80 group-hover:text-offwhite transition-colors">
+                      {item.label}
+                    </span>
+                  </div>
                 </div>
-              </div>
+              </Link>
             </motion.div>
           ))}
         </div>
