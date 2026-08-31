@@ -195,10 +195,6 @@ export default function Footer() {
             <Link to="/contact" className="text-gray-muted hover:text-orange transition-colors">
               Contact
             </Link>
-            <span className="text-gray-border">·</span>
-            <Link to="/admin" className="text-gray-muted hover:text-orange transition-colors">
-              Admin
-            </Link>
           </div>
         </div>
       </div>
