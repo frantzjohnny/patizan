@@ -43,14 +43,7 @@ export default function WhyPatizanSection() {
     <section className="section bg-navy overflow-hidden relative">
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-1/2 h-full opacity-30">
-          <img
-            src="https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=800&q=60"
-            alt=""
-            className="w-full h-full object-cover opacity-20"
-          />
-          <div className="absolute inset-0 bg-gradient-to-l from-transparent to-navy" />
-        </div>
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-[radial-gradient(ellipse_at_top_right,rgba(255,122,0,0.06),transparent_70%)]" />
       </div>
 
       <div ref={ref} className="container-wide relative z-10">

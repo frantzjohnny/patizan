@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
+  <rect width="500" height="500" fill="#080808"/>
+  <circle cx="250" cy="250" r="180" fill="#141414" stroke="#FF7A00" stroke-width="3"/>
+  <circle cx="250" cy="250" r="60" fill="#080808" stroke="#D4AF37" stroke-width="2"/>
+  <circle cx="250" cy="250" r="15" fill="#FF7A00"/>
+  <text x="250" y="445" text-anchor="middle" font-family="'Space Grotesk', system-ui, sans-serif" font-weight="700" font-size="16" fill="#888888" letter-spacing="3">PATIZAN RECORDS</text>
+</svg>

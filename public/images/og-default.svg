@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <rect width="1200" height="630" fill="#050505"/>
+  <circle cx="600" cy="315" r="450" fill="url(#grad)" opacity="0.15"/>
+  <defs>
+    <radialGradient id="grad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FF7A00" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#050505" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- Grid overlay -->
+  <path d="M0 100 H1200 M0 200 H1200 M0 300 H1200 M0 400 H1200 M0 500 H1200" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
+  <path d="M200 0 V630 M400 0 V630 M600 0 V630 M800 0 V630 M1000 0 V630" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
+  
+  <!-- Patizan Icon / Branding -->
+  <g transform="translate(600, 220)">
+    <circle cx="0" cy="0" r="48" fill="#141414" stroke="#FF7A00" stroke-width="2"/>
+    <path d="M-12 -20 L16 0 L-12 20 Z" fill="#FF7A00"/>
+  </g>
+  
+  <text x="600" y="340" text-anchor="middle" font-family="'Space Grotesk', system-ui, -apple-system, sans-serif" font-weight="800" font-size="52" fill="#FAFAFA" letter-spacing="4">PATIZAN RECORDS</text>
+  <text x="600" y="385" text-anchor="middle" font-family="'Inter', system-ui, -apple-system, sans-serif" font-weight="600" font-size="20" fill="#FF7A00" letter-spacing="6">RECORDING STUDIO • TAMARAC, FL</text>
+  <text x="600" y="425" text-anchor="middle" font-family="'Inter', system-ui, -apple-system, sans-serif" font-weight="400" font-size="16" fill="#888888" letter-spacing="1">WHERE SOUND BECOMES CULTURE</text>
+</svg>

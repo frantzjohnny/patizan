@@ -12,8 +12,7 @@ const DEFAULT_SETTINGS: SiteSettings = {
   seo_title: 'Patizan Records | Recording Studio in Tamarac, FL',
   meta_description:
     'Professional recording, music production, mixing, mastering, podcast and creative studio services in Tamarac, Florida.',
-  og_image_url:
-    'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=1200&h=630&fit=crop&q=85',
+  og_image_url: 'https://patizanrecords.com/images/og-default.svg',
   canonical_url: 'https://patizanrecords.com',
   hero_title: 'YOUR SOUND.\nYOUR SPACE.',
   hero_subtitle:

@@ -9,7 +9,7 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: 'easeOut' as const } },
 }
 
-const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=800&q=80'
+const DEFAULT_IMAGE = '/images/studio-placeholder.svg'
 const DEFAULT_ALT = 'Patizan Records Recording Studio'
 
 export default function StudioIntro() {

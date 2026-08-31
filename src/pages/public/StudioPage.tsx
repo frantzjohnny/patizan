@@ -1,17 +1,22 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import SEO from '../../components/common/SEO'
+import { useHomeMedia } from '../../hooks/useHomeMedia'
 
-const STUDIO_IMAGES = [
-  { src: 'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=1200&q=80', label: 'Control Room', desc: 'The nerve center of every session.' },
-  { src: 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=800&q=80', label: 'Mixing Console', desc: 'Analog warmth meets digital precision.' },
-  { src: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80', label: 'Live Room', desc: 'Acoustically treated for perfect recordings.' },
-  { src: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=800&q=80', label: 'Podcast Booth', desc: 'Broadcast-ready setup for content creators.' },
-  { src: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=800&q=80', label: 'Production Suite', desc: 'Beat making and composition space.' },
-  { src: 'https://images.unsplash.com/photo-1571266028243-d220c6a3adc0?w=800&q=80', label: 'Equipment', desc: 'Industry-standard gear for every project.' },
+const DEFAULT_ROOMS = [
+  { slot_key: 'home_showcase_1', label: 'Control Room', desc: 'The nerve center of every session with professional audio routing and precision monitoring.' },
+  { slot_key: 'home_showcase_2', label: 'Mixing Console', desc: 'Analog warmth meets digital precision for pristine track separation and stereo balance.' },
+  { slot_key: 'home_showcase_3', label: 'Live Room & Vocal Booth', desc: 'Acoustically isolated and tuned for clean vocal tracking and instrument capture.' },
+  { slot_key: 'home_showcase_4', label: 'Podcast & Content Lounge', desc: 'Multi-microphone broadcast setup tailored for high-engagement creator media.' },
+  { slot_key: 'home_showcase_5', label: 'Equipment & Outboard Gear', desc: 'Industry-standard microphones, converters, and analog hardware processing.' },
 ]
 
 export default function StudioPage() {
+  const { data: mediaItems = [] } = useHomeMedia()
+
+  const heroItem = mediaItems.find((m) => m.slot_key === 'home_studio_intro')
+  const heroImage = heroItem?.image_url || '/images/studio-placeholder.svg'
+
   return (
     <>
       <SEO
@@ -21,14 +26,15 @@ export default function StudioPage() {
       />
 
       {/* Hero */}
-      <section className="relative min-h-[70vh] flex items-end pb-20 pt-40 overflow-hidden bg-black">
+      <section className="relative min-h-[70vh] flex items-end pb-20 pt-40 overflow-hidden bg-black border-b border-white/10">
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=1920&q=80"
+            src={heroImage}
             alt="Patizan Records Studio"
-            className="w-full h-full object-cover opacity-50"
+            className="w-full h-full object-cover opacity-40"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,122,0,0.12),transparent_70%)]" />
         </div>
         <div className="container-wide relative z-10">
           <motion.p className="section-label mb-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -51,31 +57,40 @@ export default function StudioPage() {
       <section className="section bg-black">
         <div className="container-wide">
           <div className="space-y-24">
-            {STUDIO_IMAGES.map((room, i) => (
-              <motion.div
-                key={room.label}
-                className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center ${i % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.8 }}
-              >
-                <div className={`rounded-2xl overflow-hidden aspect-[16/10] ${i % 2 === 1 ? 'lg:order-2' : ''}`}>
-                  <img
-                    src={room.src}
-                    alt={room.label}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
-                    loading="lazy"
-                  />
-                </div>
-                <div className={i % 2 === 1 ? 'lg:order-1' : ''}>
-                  <p className="section-label mb-3">{`0${i + 1}`}</p>
-                  <h2 className="font-heading font-bold text-3xl md:text-4xl text-offwhite mb-4">{room.label}</h2>
-                  <div className="h-px w-12 bg-orange mb-6" />
-                  <p className="text-offwhite/60 font-body text-lg leading-relaxed">{room.desc}</p>
-                </div>
-              </motion.div>
-            ))}
+            {DEFAULT_ROOMS.map((room, i) => {
+              const cmsMedia = mediaItems.find((m) => m.slot_key === room.slot_key)
+              const imgSrc = cmsMedia?.image_url || '/images/studio-placeholder.svg'
+
+              return (
+                <motion.div
+                  key={room.label}
+                  className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center ${i % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.8 }}
+                >
+                  <div className={`rounded-2xl overflow-hidden aspect-[16/10] border border-white/10 bg-charcoal shadow-2xl ${i % 2 === 1 ? 'lg:order-2' : ''}`}>
+                    <img
+                      src={imgSrc}
+                      alt={cmsMedia?.alt_text || room.label}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className={i % 2 === 1 ? 'lg:order-1' : ''}>
+                    <p className="section-label mb-3">{`0${i + 1}`}</p>
+                    <h2 className="font-heading font-bold text-3xl md:text-4xl text-offwhite mb-4">
+                      {cmsMedia?.title?.replace(/^Studio Showcase \d+ — /, '') || room.label}
+                    </h2>
+                    <div className="h-px w-12 bg-orange mb-6" />
+                    <p className="text-offwhite/60 font-body text-lg leading-relaxed">
+                      {cmsMedia?.description || room.desc}
+                    </p>
+                  </div>
+                </motion.div>
+              )
+            })}
           </div>
         </div>
       </section>

@@ -1,14 +1,19 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Mic2, Users, Clock, Trophy } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import SEO from '../../components/common/SEO'
+import { useHomeMedia } from '../../hooks/useHomeMedia'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: 'easeOut' as const } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.7 } },
 }
 
 export default function AboutPage() {
+  const { data: mediaItems = [] } = useHomeMedia()
+  const introMedia = mediaItems.find((m) => m.slot_key === 'home_studio_intro')
+  const introImg = introMedia?.image_url || '/images/studio-placeholder.svg'
+
   return (
     <>
       <SEO
@@ -17,14 +22,9 @@ export default function AboutPage() {
         canonicalPath="/about"
       />
       {/* Hero */}
-      <section className="relative min-h-[60vh] flex items-end pb-20 pt-40 overflow-hidden bg-black">
-        <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=1920&q=80"
-            alt="Studio"
-            className="w-full h-full object-cover opacity-30"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 to-black" />
+      <section className="relative min-h-[60vh] flex items-end pb-20 pt-40 overflow-hidden bg-black border-b border-white/10">
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-charcoal/80 via-black to-black">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,122,0,0.12),transparent_70%)]" />
         </div>
         <div className="container-wide relative z-10">
           <motion.p
@@ -91,10 +91,10 @@ export default function AboutPage() {
               viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 0.8 }}
             >
-              <div className="rounded-2xl overflow-hidden aspect-square">
+              <div className="rounded-2xl overflow-hidden aspect-square border border-white/10 bg-charcoal shadow-2xl">
                 <img
-                  src="https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=800&q=80"
-                  alt="Patizan Records Studio Interior"
+                  src={introImg}
+                  alt={introMedia?.alt_text || 'Patizan Records Studio Interior'}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -108,41 +108,26 @@ export default function AboutPage() {
         <div className="container-standard">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { icon: Trophy, value: '500+', label: 'Sessions Completed' },
-              { icon: Users, value: '200+', label: 'Artists Served' },
-              { icon: Mic2, value: '9', label: 'Services Available' },
-              { icon: Clock, value: '7 days', label: 'A Week Open' },
-            ].map((stat, i) => {
-              const Icon = stat.icon
-              return (
-                <motion.div
-                  key={stat.label}
-                  className="text-center"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                >
-                  <Icon size={28} className="text-orange mx-auto mb-3" />
-                  <div className="font-heading font-bold text-4xl text-offwhite mb-2">{stat.value}</div>
-                  <div className="text-gray-muted text-xs tracking-wider uppercase">{stat.label}</div>
-                </motion.div>
-              )
-            })}
+              { value: '2020', label: 'ESTABLISHED' },
+              { value: '500+', label: 'TRACKS RECORDED' },
+              { value: '100+', label: 'ARTISTS SERVED' },
+              { value: '7', label: 'CORE SERVICES' },
+            ].map((stat, i) => (
+              <motion.div
+                key={stat.label}
+                className="text-center"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1, duration: 0.6 }}
+              >
+                <div className="font-heading font-bold text-4xl sm:text-5xl text-orange mb-2">
+                  {stat.value}
+                </div>
+                <div className="font-mono text-xs text-offwhite/50 tracking-widest">{stat.label}</div>
+              </motion.div>
+            ))}
           </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="section bg-black">
-        <div className="container-standard text-center">
-          <h2 className="section-title mb-6">READY TO RECORD?</h2>
-          <p className="text-offwhite/50 mb-8 max-w-md mx-auto font-body">
-            Your sound, your vision — let's make it happen together.
-          </p>
-          <Link to="/book-session" className="btn-primary rounded-xl text-sm inline-flex">
-            BOOK A SESSION
-          </Link>
         </div>
       </section>
     </>

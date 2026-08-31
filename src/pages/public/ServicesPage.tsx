@@ -6,21 +6,9 @@ import { formatCurrency } from '../../lib/utils'
 import type { Service } from '../../types'
 import SEO from '../../components/common/SEO'
 
-const DEFAULT_SERVICE_IMAGES: Record<string, string> = {
-  recording: 'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=1600&q=85&auto=format&fit=crop',
-  podcast: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=1000&q=80&auto=format&fit=crop',
-  'voice-over': 'https://images.unsplash.com/photo-1589903188900-85dae523342b?w=1000&q=80&auto=format&fit=crop',
-  'mixing-mastering': 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=1000&q=80&auto=format&fit=crop',
-  'beat-production': 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1000&q=80&auto=format&fit=crop',
-  streaming: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1000&q=80&auto=format&fit=crop',
-  jingle: 'https://images.unsplash.com/photo-1471478331149-c72f17e33c73?w=1000&q=80&auto=format&fit=crop',
-  'dj-tag': 'https://images.unsplash.com/photo-1571266028243-d220c6a3adc0?w=1000&q=80&auto=format&fit=crop',
-  'commercial-spot': 'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=1000&q=80&auto=format&fit=crop',
-}
-
 function ServiceDetail({ service, index }: { service: Service; index: number }) {
   const { data: packages = [] } = useServicePackages(service.id)
-  const imgSrc = service.image_url || DEFAULT_SERVICE_IMAGES[service.slug] || DEFAULT_SERVICE_IMAGES.recording
+  const imgSrc = service.image_url || '/images/service-placeholder.svg'
 
   return (
     <motion.div
@@ -123,14 +111,8 @@ export default function ServicesPage() {
       />
       {/* Hero Header */}
       <section className="relative min-h-[48vh] flex items-end pb-16 pt-36 bg-black overflow-hidden border-b border-white/10">
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=1920&q=85&auto=format&fit=crop"
-            alt="Patizan Records Studio"
-            className="w-full h-full object-cover opacity-30"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent" />
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-charcoal/80 via-black to-black">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,122,0,0.12),transparent_70%)]" />
         </div>
 
         <div className="container-wide relative z-10">

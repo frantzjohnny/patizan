@@ -6,20 +6,8 @@ import { useServices } from '../../../hooks/useServices'
 import { formatCurrency } from '../../../lib/utils'
 import type { Service } from '../../../types'
 
-const DEFAULT_SERVICE_IMAGES: Record<string, string> = {
-  recording: 'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=1600&q=85&auto=format&fit=crop',
-  podcast: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=1000&q=80&auto=format&fit=crop',
-  'voice-over': 'https://images.unsplash.com/photo-1589903188900-85dae523342b?w=1000&q=80&auto=format&fit=crop',
-  'mixing-mastering': 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=1000&q=80&auto=format&fit=crop',
-  'beat-production': 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1000&q=80&auto=format&fit=crop',
-  streaming: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1000&q=80&auto=format&fit=crop',
-  jingle: 'https://images.unsplash.com/photo-1471478331149-c72f17e33c73?w=1000&q=80&auto=format&fit=crop',
-  'dj-tag': 'https://images.unsplash.com/photo-1571266028243-d220c6a3adc0?w=1000&q=80&auto=format&fit=crop',
-  'commercial-spot': 'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=1000&q=80&auto=format&fit=crop',
-}
-
 function getServiceImage(service: Service): string {
-  return service.image_url || DEFAULT_SERVICE_IMAGES[service.slug] || DEFAULT_SERVICE_IMAGES.recording
+  return service.image_url || '/images/service-placeholder.svg'
 }
 
 // ─── Featured Main Service Card (Editorial Hero Format) ───

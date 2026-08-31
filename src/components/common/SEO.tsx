@@ -10,12 +10,11 @@ interface SEOProps {
   ogType?: 'website' | 'article' | 'music.song'
 }
 
+const BASE_DOMAIN = (import.meta.env.VITE_APP_URL || 'https://patizanrecords.com').replace(/\/+$/, '')
 const DEFAULT_TITLE = 'Patizan Records | Recording Studio in Tamarac, FL'
 const DEFAULT_DESCRIPTION =
   'Professional recording, music production, mixing, mastering, podcast and creative studio services in Tamarac, Florida.'
-const DEFAULT_OG_IMAGE =
-  'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=1200&h=630&fit=crop&q=85'
-const BASE_DOMAIN = (import.meta.env.VITE_APP_URL || 'https://patizanrecords.com').replace(/\/+$/, '')
+const DEFAULT_OG_IMAGE = `${BASE_DOMAIN}/images/og-default.svg`
 
 /**
  * PATIZAN RECORDS — SEO & Open Graph Metadata Manager

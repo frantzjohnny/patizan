@@ -139,14 +139,18 @@ export default function Hero() {
               scale: { duration: 7, ease: 'easeOut' },
             }}
           >
-            <img
-              src={currentSlide.background_image}
-              alt={currentSlide.title ? currentSlide.title.replace(/\n/g, ' ') : 'Patizan Records Studio'}
-              className="w-full h-full object-cover transform-gpu"
-              style={{ objectPosition: currentSlide.image_position || 'center' }}
-              loading={activeIndex === 0 ? 'eager' : 'lazy'}
-              fetchPriority={activeIndex === 0 ? 'high' : 'auto'}
-            />
+            {currentSlide.background_image ? (
+              <img
+                src={currentSlide.background_image}
+                alt={currentSlide.title ? currentSlide.title.replace(/\n/g, ' ') : 'Patizan Records Studio'}
+                className="w-full h-full object-cover transform-gpu"
+                style={{ objectPosition: currentSlide.image_position || 'center' }}
+                loading={activeIndex === 0 ? 'eager' : 'lazy'}
+                fetchPriority={activeIndex === 0 ? 'high' : 'auto'}
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-b from-[#141414] via-[#0a0a0a] to-black" />
+            )}
           </motion.div>
         </AnimatePresence>
 

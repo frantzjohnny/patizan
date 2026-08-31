@@ -42,9 +42,7 @@ function SlideEditorModal({ slide, onClose, totalSlides }: SlideModalProps) {
     description:
       slide?.description ||
       'A professional recording environment built for artists, producers and creators in South Florida.',
-    background_image:
-      slide?.background_image ||
-      'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=1920&q=85&auto=format&fit=crop',
+    background_image: slide?.background_image || '',
     image_position: (slide?.image_position || 'center') as HeroImagePosition,
     primary_button_text: slide?.primary_button_text || 'BOOK A SESSION',
     primary_button_link: slide?.primary_button_link || '/book-session',
@@ -175,7 +173,7 @@ function SlideEditorModal({ slide, onClose, totalSlides }: SlideModalProps) {
                   type="text"
                   value={form.background_image}
                   onChange={(e) => setForm({ ...form, background_image: e.target.value })}
-                  placeholder="https://images.unsplash.com/..."
+                  placeholder="https://.../storage/v1/object/public/..."
                   className="input-field rounded-xl text-xs font-mono"
                   required
                 />
