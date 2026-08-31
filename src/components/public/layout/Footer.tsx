@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { MapPin, Phone, Mail } from 'lucide-react'
-import { InstagramIcon, FacebookIcon, YoutubeIcon } from '../../icons/SocialIcons'
+import { InstagramIcon, FacebookIcon, TikTokIcon } from '../../icons/SocialIcons'
 import { STUDIO_INFO, NAV_LINKS } from '../../../lib/constants'
 
 const SERVICES = [
@@ -49,31 +49,31 @@ export default function Footer() {
             </p>
             <div className="flex items-center gap-4">
               <a
-                href={`https://instagram.com/${STUDIO_INFO.instagram.replace('@', '')}`}
+                href={STUDIO_INFO.instagramUrl}
                 target="_blank"
-                rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-charcoal border border-gray-border flex items-center justify-center text-offwhite/50 hover:text-orange hover:border-orange/30 transition-all duration-200"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-lg bg-charcoal border border-gray-border flex items-center justify-center text-offwhite/60 hover:text-orange hover:border-orange/30 transition-all duration-200"
                 aria-label="Instagram"
               >
                 <InstagramIcon className="w-4 h-4" />
               </a>
               <a
-                href="https://facebook.com"
+                href={STUDIO_INFO.facebookUrl}
                 target="_blank"
-                rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-charcoal border border-gray-border flex items-center justify-center text-offwhite/50 hover:text-orange hover:border-orange/30 transition-all duration-200"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-lg bg-charcoal border border-gray-border flex items-center justify-center text-offwhite/60 hover:text-orange hover:border-orange/30 transition-all duration-200"
                 aria-label="Facebook"
               >
                 <FacebookIcon className="w-4 h-4" />
               </a>
               <a
-                href="https://youtube.com"
+                href={STUDIO_INFO.tiktokUrl}
                 target="_blank"
-                rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-charcoal border border-gray-border flex items-center justify-center text-offwhite/50 hover:text-orange hover:border-orange/30 transition-all duration-200"
-                aria-label="YouTube"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-lg bg-charcoal border border-gray-border flex items-center justify-center text-offwhite/60 hover:text-orange hover:border-orange/30 transition-all duration-200"
+                aria-label="TikTok"
               >
-                <YoutubeIcon className="w-4 h-4" />
+                <TikTokIcon className="w-4 h-4" />
               </a>
             </div>
           </div>
@@ -152,6 +152,7 @@ export default function Footer() {
                 <a
                   href={`mailto:${STUDIO_INFO.email}`}
                   className="text-gray-muted text-sm hover:text-orange transition-colors break-all"
+                  aria-label="Email Patizan Records"
                 >
                   {STUDIO_INFO.email}
                 </a>
@@ -159,12 +160,37 @@ export default function Footer() {
               <li className="flex items-center gap-3">
                 <InstagramIcon className="w-4 h-4 text-orange shrink-0" />
                 <a
-                  href={`https://instagram.com/${STUDIO_INFO.instagram.replace('@', '')}`}
+                  href={STUDIO_INFO.instagramUrl}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="text-gray-muted text-sm hover:text-orange transition-colors"
+                  aria-label="Instagram"
                 >
                   {STUDIO_INFO.instagram}
+                </a>
+              </li>
+              <li className="flex items-center gap-3">
+                <FacebookIcon className="w-4 h-4 text-orange shrink-0" />
+                <a
+                  href={STUDIO_INFO.facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-muted text-sm hover:text-orange transition-colors"
+                  aria-label="Facebook"
+                >
+                  Facebook Page
+                </a>
+              </li>
+              <li className="flex items-center gap-3">
+                <TikTokIcon className="w-4 h-4 text-orange shrink-0" />
+                <a
+                  href={STUDIO_INFO.tiktokUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-muted text-sm hover:text-orange transition-colors"
+                  aria-label="TikTok"
+                >
+                  TikTok Profile
                 </a>
               </li>
             </ul>

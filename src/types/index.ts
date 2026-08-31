@@ -89,6 +89,18 @@ export interface HeroSlide {
   updated_at: string
 }
 
+export interface HomeMediaItem {
+  id: string
+  slot_key: string
+  title: string
+  description?: string | null
+  image_url: string
+  storage_path?: string | null
+  alt_text: string
+  is_active: boolean
+  updated_at: string
+}
+
 export interface Service {
   id: string
   name: string

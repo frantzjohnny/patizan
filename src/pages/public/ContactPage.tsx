@@ -96,10 +96,11 @@ export default function ContactPage() {
                   <div>
                     <p className="font-heading font-semibold text-sm text-offwhite mb-1">Instagram</p>
                     <a
-                      href={`https://instagram.com/${STUDIO_INFO.instagram.replace('@', '')}`}
+                      href={STUDIO_INFO.instagramUrl}
                       target="_blank"
-                      rel="noreferrer"
+                      rel="noopener noreferrer"
                       className="text-gray-muted text-sm hover:text-orange transition-colors"
+                      aria-label="Instagram"
                     >
                       {STUDIO_INFO.instagram}
                     </a>

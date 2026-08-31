@@ -346,8 +346,8 @@ CREATE TABLE IF NOT EXISTS public.site_settings (
   favicon_url TEXT,
   address TEXT DEFAULT '3900 W Commercial Blvd, Suite 230, Tamarac, FL 33309, USA',
   phone TEXT DEFAULT '959 205 6476',
-  email TEXT DEFAULT 'patizanrecordsmia@gmail.com',
-  instagram TEXT DEFAULT '@patizanrecordsmiiami',
+  email TEXT DEFAULT 'patizanrecordsmiami@gmail.com',
+  instagram TEXT DEFAULT '@patizanrecordsmiami',
   facebook TEXT,
   youtube TEXT,
   tiktok TEXT,
@@ -361,6 +361,20 @@ CREATE TABLE IF NOT EXISTS public.site_settings (
   studio_policy TEXT,
   deposit_percentage NUMERIC(5,2) DEFAULT 50.00,
   meta_description TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Home Page Media Slots
+CREATE TABLE IF NOT EXISTS public.home_media (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  slot_key TEXT UNIQUE NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  image_url TEXT NOT NULL,
+  storage_path TEXT,
+  alt_text TEXT DEFAULT 'Patizan Records Studio Image',
+  is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -387,8 +401,13 @@ ALTER TABLE public.testimonials ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.blog_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.blog_posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.home_media ENABLE ROW LEVEL SECURITY;
 
 -- ─── Step 8: Define Secure RLS Policies ──────────────────────
+
+-- Home Media
+CREATE POLICY "Public select home_media" ON public.home_media FOR SELECT USING (is_active = TRUE OR public.is_admin());
+CREATE POLICY "Admins manage home_media" ON public.home_media FOR ALL USING (public.is_admin());
 
 -- Profiles
 CREATE POLICY "Public view profiles" ON public.profiles FOR SELECT USING (TRUE);
@@ -535,12 +554,22 @@ VALUES (
   'YOUR SOUND.' || E'\n' || 'YOUR SPACE.',
   '3900 W Commercial Blvd, Suite 230, Tamarac, FL 33309, USA',
   '959 205 6476',
-  'patizanrecordsmia@gmail.com',
-  '@patizanrecordsmiiami',
+  'patizanrecordsmiami@gmail.com',
+  '@patizanrecordsmiami',
   'When you record a complete track, you will receive a complimentary studio visualizer.',
   TRUE
 )
 ON CONFLICT DO NOTHING;
+
+-- Home Page Media Slots Seed
+INSERT INTO public.home_media (slot_key, title, description, image_url, alt_text, is_active) VALUES
+  ('home_studio_intro', 'Studio Intro (About Section)', 'Featured studio image displayed next to "More Than A Studio" on the homepage.', 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=800&q=80', 'Patizan Records Recording Studio Tamarac', TRUE),
+  ('home_showcase_1', 'Studio Showcase 01 — Control Room', 'Large feature image in "The Space Itself" facility showcase.', 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800&q=80', 'Patizan Records Control Room', TRUE),
+  ('home_showcase_2', 'Studio Showcase 02 — Mixing Console', 'Mixing console slot in the facility grid.', 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=600&q=80', 'Analog & Digital Mixing Console at Patizan Records', TRUE),
+  ('home_showcase_3', 'Studio Showcase 03 — Recording Booth', 'Acoustically isolated vocal booth slot.', 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80', 'Acoustic Vocal Recording Booth', TRUE),
+  ('home_showcase_4', 'Studio Showcase 04 — Podcast Suite', 'Multi-camera podcast and broadcast setup slot.', 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=600&q=80', 'Podcast Production Suite', TRUE),
+  ('home_showcase_5', 'Studio Showcase 05 — Studio Equipment', 'High-end microphones and analog outboard gear slot.', 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=600&q=80', 'Studio Microphones and Outboard Audio Processors', TRUE)
+ON CONFLICT (slot_key) DO NOTHING;
 
 -- Studio Availability (Mon-Sun 9am-11pm)
 INSERT INTO public.studio_availability (day_of_week, is_open, open_time, close_time) VALUES

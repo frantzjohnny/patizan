@@ -44,8 +44,8 @@ export default function Navbar() {
       >
         <div className="container-wide">
           <div className="flex items-center justify-between h-20">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-3 group">
+            {/* Brand Logo */}
+            <Link to="/" className="flex items-center gap-3 group" onClick={() => setIsMobileMenuOpen(false)}>
               <div className="flex flex-col leading-none">
                 <span className="font-heading font-bold text-xl tracking-widest text-offwhite uppercase group-hover:text-orange transition-colors duration-300">
                   PATIZAN
@@ -72,22 +72,36 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
+              <Link
+                to="/contact"
+                className={cn(
+                  'font-heading font-medium text-xs tracking-wider uppercase transition-colors duration-200',
+                  location.pathname === '/contact'
+                    ? 'text-orange'
+                    : 'text-offwhite/70 hover:text-offwhite'
+                )}
+              >
+                Contact
+              </Link>
             </nav>
 
-            {/* CTA + Hamburger */}
+            {/* Desktop CTA + Mobile Hamburger */}
             <div className="flex items-center gap-4">
-              <Link
-                to="/book-session"
-                className="hidden sm:flex btn-primary text-xs py-3 px-6 rounded-lg"
-              >
-                BOOK A SESSION
-              </Link>
+              {/* Desktop Only CTA */}
+              <div className="hidden lg:block">
+                <Link
+                  to="/book-session"
+                  className="btn-primary text-xs py-3 px-6 rounded-lg font-heading font-bold tracking-wider uppercase shadow-glow-orange hover:bg-orange-hover transition-all"
+                >
+                  BOOK A SESSION
+                </Link>
+              </div>
 
-              {/* Mobile Hamburger */}
+              {/* Mobile Modern Hamburger Toggle Button (44x44px touch target) */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 text-offwhite hover:text-orange transition-colors"
-                aria-label="Toggle menu"
+                className="lg:hidden w-11 h-11 rounded-xl bg-charcoal/80 border border-gray-border/60 flex items-center justify-center text-offwhite hover:text-orange hover:border-orange/50 transition-all duration-200 active:scale-95 focus:outline-none"
+                aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               >
                 <AnimatePresence mode="wait">
                   {isMobileMenuOpen ? (
@@ -98,7 +112,7 @@ export default function Navbar() {
                       exit={{ rotate: 90, opacity: 0 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <X size={24} />
+                      <X size={22} className="text-orange" />
                     </motion.div>
                   ) : (
                     <motion.div
@@ -108,7 +122,7 @@ export default function Navbar() {
                       exit={{ rotate: -90, opacity: 0 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <Menu size={24} />
+                      <Menu size={22} />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -118,7 +132,7 @@ export default function Navbar() {
         </div>
       </motion.header>
 
-      {/* Mobile Menu */}
+      {/* Modern App-Style Mobile Navigation Panel */}
       <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
     </>
   )

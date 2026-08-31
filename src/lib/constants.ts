@@ -10,8 +10,11 @@ export const STUDIO_INFO = {
   address: '3900 W Commercial Blvd, Suite 230',
   city: 'Tamarac, FL 33309',
   phone: '959 205 6476',
-  email: 'patizanrecordsmia@gmail.com',
-  instagram: '@patizanrecordsmiiami',
+  email: 'patizanrecordsmiami@gmail.com',
+  instagram: '@patizanrecordsmiami',
+  facebookUrl: 'https://www.facebook.com/share/1HqBJh2CD3/?mibextid=wwXIfr',
+  instagramUrl: 'https://www.instagram.com/patizanrecordsmiami?igsi=ZGZpbzJydjF3NWRq&utm_source=qr',
+  tiktokUrl: 'https://www.tiktok.com/@patizanrecordsmiami?_r=1&_t=ZT-99KatCqy2pC',
   fullAddress: '3900 W Commercial Blvd, Suite 230, Tamarac, FL 33309, USA',
 } as const;
 
@@ -98,6 +101,7 @@ export const ADMIN_NAV = [
     section: 'Content',
     items: [
       { href: '/admin/hero-slides', label: 'Hero Slider', icon: 'Layers' },
+      { href: '/admin/home-media', label: 'Home Media', icon: 'LayoutGrid' },
       { href: '/admin/services', label: 'Services', icon: 'Briefcase' },
       { href: '/admin/pricing', label: 'Pricing', icon: 'DollarSign' },
       { href: '/admin/gallery', label: 'Gallery', icon: 'Image' },

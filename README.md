@@ -7,7 +7,7 @@ A high-performance, full-stack web application and studio operations management 
 ## 📍 Studio Overview
 - **Location**: 3900 W Commercial Blvd, Suite 230, Tamarac, FL 33309, USA
 - **Phone**: 959 205 6476
-- **Email**: patizanrecordsmia@gmail.com
+- **Email**: patizanrecordsmiami@gmail.com
 - **Instagram**: [@patizanrecordsmiiami](https://instagram.com/patizanrecordsmiiami)
 
 ---

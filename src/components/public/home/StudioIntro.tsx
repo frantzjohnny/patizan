@@ -1,17 +1,25 @@
-import { motion } from 'framer-motion'
-import { useInView } from 'framer-motion'
+import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
+import { useHomeMedia } from '../../../hooks/useHomeMedia'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
   show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: 'easeOut' as const } },
 }
 
+const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=800&q=80'
+const DEFAULT_ALT = 'Patizan Records Recording Studio'
+
 export default function StudioIntro() {
   const ref = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref, { once: true, amount: 0.2 })
+  const { data: mediaItems } = useHomeMedia()
+
+  const studioIntroItem = mediaItems?.find((item) => item.slot_key === 'home_studio_intro')
+  const imageUrl = studioIntroItem?.image_url || DEFAULT_IMAGE
+  const imageAlt = studioIntroItem?.alt_text || DEFAULT_ALT
 
   return (
     <section className="section bg-black overflow-hidden">
@@ -62,8 +70,8 @@ export default function StudioIntro() {
             {/* Main image */}
             <div className="relative rounded-2xl overflow-hidden aspect-[4/5]">
               <img
-                src="https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=800&q=80"
-                alt="Patizan Records Recording Studio"
+                src={imageUrl}
+                alt={imageAlt}
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                 loading="lazy"
               />
