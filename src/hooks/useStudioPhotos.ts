@@ -133,12 +133,16 @@ export function useCreateStudioPhoto() {
 
       if (error) throw error
 
-      // If SEO image, sync with site_settings og_image_url
+      // If SEO image, sync with site_settings og_image_url if present
       if (photo.is_seo_image && data?.image_url) {
-        await supabase
-          .from('site_settings')
-          .update({ og_image_url: data.image_url, updated_at: new Date().toISOString() })
-          .neq('id', '00000000-0000-0000-0000-000000000000')
+        try {
+          await supabase
+            .from('site_settings')
+            .update({ og_image_url: data.image_url, updated_at: new Date().toISOString() })
+            .neq('id', '00000000-0000-0000-0000-000000000000')
+        } catch {
+          // Non-blocking if column not yet added to site_settings
+        }
       }
 
       return data
@@ -185,10 +189,14 @@ export function useUpdateStudioPhoto() {
 
       // Sync SEO image with site_settings if active
       if (updates.is_seo_image && data?.image_url) {
-        await supabase
-          .from('site_settings')
-          .update({ og_image_url: data.image_url, updated_at: new Date().toISOString() })
-          .neq('id', '00000000-0000-0000-0000-000000000000')
+        try {
+          await supabase
+            .from('site_settings')
+            .update({ og_image_url: data.image_url, updated_at: new Date().toISOString() })
+            .neq('id', '00000000-0000-0000-0000-000000000000')
+        } catch {
+          // Non-blocking
+        }
       }
 
       // Cleanup replaced old image in background if URL changed
@@ -291,10 +299,14 @@ export function useSetSeoStudioPhoto() {
 
         if (updateError) throw updateError
 
-        await supabase
-          .from('site_settings')
-          .update({ og_image_url: imageUrl, updated_at: new Date().toISOString() })
-          .neq('id', '00000000-0000-0000-0000-000000000000')
+        try {
+          await supabase
+            .from('site_settings')
+            .update({ og_image_url: imageUrl, updated_at: new Date().toISOString() })
+            .neq('id', '00000000-0000-0000-0000-000000000000')
+        } catch {
+          // Non-blocking
+        }
       }
     },
     onSuccess: () => {
