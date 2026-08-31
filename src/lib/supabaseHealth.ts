@@ -41,7 +41,7 @@ const REQUIRED_TABLES = [
   { id: 'blog_categories', name: 'Blog Categories Table' },
   { id: 'site_settings', name: 'Site Settings Table' },
   { id: 'studio_availability', name: 'Studio Availability Table' },
-  { id: 'blocked_times', name: 'Blocked Times Table' },
+  { id: 'home_media', name: 'Home Media Slots Table' },
   { id: 'profiles', name: 'User Profiles Table' },
   { id: 'admin_users', name: 'Admin Users Authorization Table' },
 ]

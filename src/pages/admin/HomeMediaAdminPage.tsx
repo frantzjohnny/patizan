@@ -5,7 +5,7 @@ import {
   Layers, RefreshCw, Eye
 } from 'lucide-react'
 import { useHomeMedia, useUpdateHomeMedia, INITIAL_HOME_MEDIA } from '../../hooks/useHomeMedia'
-import { uploadImage } from '../../lib/storage'
+import { uploadImage, deleteFromStorage } from '../../lib/storage'
 import type { HomeMediaItem } from '../../types'
 
 export default function HomeMediaAdminPage() {
@@ -67,26 +67,36 @@ export default function HomeMediaAdminPage() {
     const slotKey = item.slot_key
     const file = filesToUpload[slotKey]
     const customAlt = altTexts[slotKey] !== undefined ? altTexts[slotKey] : item.alt_text
+    const oldImageUrl = item.image_url
+    const oldStoragePath = item.storage_path
 
     setUploadingSlot(slotKey)
     setStatusMessage(null)
 
+    let newlyUploadedUrl: string | null = null
+    let newStoragePath: string | null = null
+
     try {
       let finalImageUrl = item.image_url
 
-      // Upload new file to Supabase Storage if selected
+      // 1. Upload new file to Supabase Storage if selected
       if (file) {
-        finalImageUrl = await uploadImage('studio-images', file, 'home-media')
+        finalImageUrl = await uploadImage('studio-images', file, `home-media/${slotKey}`)
+        newlyUploadedUrl = finalImageUrl
+        newStoragePath = finalImageUrl
       }
 
-      // Save to Supabase table & local cache
+      // 2. Save to Supabase table & verify record
       await updateMedia.mutateAsync({
         slot_key: slotKey,
+        title: item.title,
+        description: item.description || undefined,
         image_url: finalImageUrl,
         alt_text: customAlt,
+        storage_path: newStoragePath || oldStoragePath || undefined,
       })
 
-      // Clean preview states
+      // 3. Clean preview states on success
       setPreviewUrls((prev) => {
         const next = { ...prev }
         delete next[slotKey]
@@ -98,16 +108,38 @@ export default function HomeMediaAdminPage() {
         return next
       })
 
+      // 4. Safe Storage cleanup of the old file (only after confirmed DB update and verification)
+      if (file && oldImageUrl && oldImageUrl !== finalImageUrl) {
+        if (oldImageUrl.includes('supabase.co/storage')) {
+          try {
+            await deleteFromStorage('studio-images', oldImageUrl)
+          } catch (cleanErr) {
+            console.warn('[Storage Cleanup] Non-critical warning on old file removal:', cleanErr)
+          }
+        }
+      }
+
       setStatusMessage({
         slot: slotKey,
         type: 'success',
-        text: 'Image updated successfully.',
+        text: 'Image successfully uploaded, updated in database, and verified!',
       })
     } catch (err: any) {
+      console.error('[HomeMediaAdmin] Save slot error:', err)
+
+      // If upload succeeded but DB update failed, clean up orphaned newly uploaded file
+      if (newlyUploadedUrl && newlyUploadedUrl.includes('supabase.co/storage')) {
+        try {
+          await deleteFromStorage('studio-images', newlyUploadedUrl)
+        } catch {
+          // ignore cleanup error
+        }
+      }
+
       setStatusMessage({
         slot: slotKey,
         type: 'error',
-        text: err?.message || 'Failed to update image. Please try again.',
+        text: err?.message || 'Failed to update image. Old image preserved.',
       })
     } finally {
       setUploadingSlot(null)

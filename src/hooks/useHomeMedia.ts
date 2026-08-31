@@ -96,25 +96,52 @@ export function useHomeMedia() {
         const { data, error } = await supabase
           .from('home_media')
           .select('*')
+          .eq('is_active', true)
           .order('slot_key')
 
-        if (error || !data || data.length === 0) {
+        if (error) {
+          console.warn('[useHomeMedia] Supabase error, reading local cache:', error.message)
           return getLocalHomeMedia()
         }
 
-        // Merge fetched data with default slots in case new slots exist
+        if (!data || data.length === 0) {
+          return getLocalHomeMedia()
+        }
+
+        // Merge fetched database records with defaults so any missing slot has a fallback
         const merged = INITIAL_HOME_MEDIA.map((initial) => {
           const found = data.find((d: any) => d.slot_key === initial.slot_key)
-          return found || initial
+          if (found) {
+            return {
+              id: found.id,
+              slot_key: found.slot_key,
+              title: found.title || initial.title,
+              description: found.description !== undefined ? found.description : initial.description,
+              image_url: found.image_url,
+              storage_path: found.storage_path,
+              alt_text: found.alt_text || initial.alt_text,
+              is_active: found.is_active,
+              updated_at: found.updated_at,
+            }
+          }
+          return initial
+        })
+
+        // Also include any extra slots that exist in database
+        data.forEach((d: any) => {
+          if (!merged.some((m) => m.slot_key === d.slot_key)) {
+            merged.push(d)
+          }
         })
 
         saveLocalHomeMedia(merged)
         return merged
-      } catch {
+      } catch (err) {
+        console.warn('[useHomeMedia] Exception caught, reading local cache:', err)
         return getLocalHomeMedia()
       }
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes cache
+    staleTime: 1000 * 30, // 30 seconds cache for responsive freshness
   })
 }
 
@@ -124,49 +151,96 @@ export function useUpdateHomeMedia() {
   return useMutation({
     mutationFn: async ({
       slot_key,
+      title,
+      description,
       image_url,
       alt_text,
       storage_path,
     }: {
       slot_key: string
+      title?: string
+      description?: string
       image_url: string
       alt_text?: string
       storage_path?: string
     }) => {
       const now = new Date().toISOString()
+      const initialSlot = INITIAL_HOME_MEDIA.find((s) => s.slot_key === slot_key)
 
-      // Attempt Supabase upsert
-      try {
-        await supabase.from('home_media').upsert(
+      // 1. Attempt Supabase UPSERT
+      const { error: upsertError } = await supabase
+        .from('home_media')
+        .upsert(
           {
             slot_key,
+            title: title || initialSlot?.title || slot_key,
+            description: description !== undefined ? description : initialSlot?.description || null,
             image_url,
-            alt_text: alt_text || 'Patizan Records Studio Image',
+            alt_text: alt_text || initialSlot?.alt_text || 'Patizan Records Studio Image',
             storage_path: storage_path || null,
             is_active: true,
             updated_at: now,
           },
           { onConflict: 'slot_key' }
         )
-      } catch (err) {
-        console.warn('Supabase home_media update fallback to local cache:', err)
+        .select()
+        .single()
+
+      if (upsertError) {
+        // If table doesn't exist yet, save locally but inform the caller
+        const current = getLocalHomeMedia()
+        const updated = current.map((item) =>
+          item.slot_key === slot_key
+            ? {
+                ...item,
+                image_url,
+                alt_text: alt_text !== undefined ? alt_text : item.alt_text,
+                storage_path: storage_path || item.storage_path,
+                updated_at: now,
+              }
+            : item
+        )
+        saveLocalHomeMedia(updated)
+
+        throw new Error(
+          `Database update failed: ${upsertError.message}. Please run the home_media.sql migration in Supabase SQL editor.`
+        )
       }
 
-      // Update local storage cache
+      // 2. Perform Database Verification (SELECT by slot_key to confirm the record)
+      const { data: verifiedRecord, error: verifyError } = await supabase
+        .from('home_media')
+        .select('*')
+        .eq('slot_key', slot_key)
+        .single()
+
+      if (verifyError || !verifiedRecord) {
+        throw new Error('Database verification failed: Record could not be verified after update.')
+      }
+
+      if (verifiedRecord.image_url !== image_url) {
+        throw new Error(
+          `Database verification mismatch: Expected image URL "${image_url}" but found "${verifiedRecord.image_url}".`
+        )
+      }
+
+      // 3. Update local storage cache with verified record
       const current = getLocalHomeMedia()
       const updated = current.map((item) =>
         item.slot_key === slot_key
           ? {
               ...item,
-              image_url,
-              alt_text: alt_text !== undefined ? alt_text : item.alt_text,
-              storage_path: storage_path || item.storage_path,
-              updated_at: now,
+              id: verifiedRecord.id || item.id,
+              image_url: verifiedRecord.image_url,
+              alt_text: verifiedRecord.alt_text,
+              storage_path: verifiedRecord.storage_path,
+              updated_at: verifiedRecord.updated_at,
             }
           : item
       )
       saveLocalHomeMedia(updated)
-      return updated
+
+      return verifiedRecord
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['home_media'] })

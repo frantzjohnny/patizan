@@ -32,11 +32,13 @@ export default function Navbar() {
     <>
       <motion.header
         className={cn(
-          'fixed top-0 left-0 right-0 transition-all duration-500',
-          isMobileMenuOpen ? 'z-[96]' : 'z-50',
-          isTransparent
-            ? 'bg-transparent'
-            : 'bg-black/95 backdrop-blur-md border-b border-gray-border/50'
+          'fixed top-0 left-0 right-0 transition-all duration-300',
+          isMobileMenuOpen ? 'z-[101] bg-[#050505] border-b border-gray-border/40' : 'z-50',
+          !isMobileMenuOpen && (
+            isTransparent
+              ? 'bg-transparent'
+              : 'bg-black/95 backdrop-blur-md border-b border-gray-border/50'
+          )
         )}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
@@ -45,7 +47,15 @@ export default function Navbar() {
         <div className="container-wide">
           <div className="flex items-center justify-between h-20">
             {/* Brand Logo */}
-            <Link to="/" className="flex items-center gap-3 group" onClick={() => setIsMobileMenuOpen(false)}>
+            <Link
+              to="/"
+              className="flex items-center gap-3 group focus:outline-none focus:ring-1 focus:ring-orange/50 rounded-lg"
+              onClick={() => {
+                setIsMobileMenuOpen(false)
+                window.scrollTo({ top: 0, behavior: 'instant' })
+              }}
+              aria-label="Patizan Records Home"
+            >
               <div className="flex flex-col leading-none">
                 <span className="font-heading font-bold text-xl tracking-widest text-offwhite uppercase group-hover:text-orange transition-colors duration-300">
                   PATIZAN
@@ -57,13 +67,13 @@ export default function Navbar() {
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-8">
+            <nav className="hidden lg:flex items-center gap-8" aria-label="Main Desktop Navigation">
               {NAV_LINKS.map((link) => (
                 <Link
                   key={link.href}
                   to={link.href}
                   className={cn(
-                    'font-heading font-medium text-xs tracking-wider uppercase transition-colors duration-200',
+                    'font-heading font-medium text-xs tracking-wider uppercase transition-colors duration-200 focus:outline-none focus:text-orange',
                     location.pathname === link.href
                       ? 'text-orange'
                       : 'text-offwhite/70 hover:text-offwhite'
@@ -75,7 +85,7 @@ export default function Navbar() {
               <Link
                 to="/contact"
                 className={cn(
-                  'font-heading font-medium text-xs tracking-wider uppercase transition-colors duration-200',
+                  'font-heading font-medium text-xs tracking-wider uppercase transition-colors duration-200 focus:outline-none focus:text-orange',
                   location.pathname === '/contact'
                     ? 'text-orange'
                     : 'text-offwhite/70 hover:text-offwhite'
@@ -97,11 +107,19 @@ export default function Navbar() {
                 </Link>
               </div>
 
-              {/* Mobile Modern Hamburger Toggle Button (44x44px touch target) */}
+              {/* Mobile Modern Hamburger Toggle Button (44x44px min touch target) */}
               <button
+                type="button"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden w-11 h-11 rounded-xl bg-charcoal/80 border border-gray-border/60 flex items-center justify-center text-offwhite hover:text-orange hover:border-orange/50 transition-all duration-200 active:scale-95 focus:outline-none"
+                className={cn(
+                  'lg:hidden min-w-[44px] min-h-[44px] w-11 h-11 rounded-xl border flex items-center justify-center transition-all duration-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange/50',
+                  isMobileMenuOpen
+                    ? 'bg-charcoal border-orange/50 text-orange shadow-glow-orange'
+                    : 'bg-charcoal/80 border-gray-border/60 text-offwhite hover:text-orange hover:border-orange/50'
+                )}
                 aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                aria-expanded={isMobileMenuOpen}
+                aria-controls="mobile-navigation-menu"
               >
                 <AnimatePresence mode="wait">
                   {isMobileMenuOpen ? (
