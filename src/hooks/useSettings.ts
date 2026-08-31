@@ -9,8 +9,15 @@ const DEFAULT_SETTINGS: SiteSettings = {
   id: 'settings-1',
   studio_name: 'Patizan Records',
   tagline: 'WHERE SOUND BECOMES CULTURE.',
+  seo_title: 'Patizan Records | Recording Studio in Tamarac, FL',
+  meta_description:
+    'Professional recording, music production, mixing, mastering, podcast and creative studio services in Tamarac, Florida.',
+  og_image_url:
+    'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&h=630&fit=crop&q=85',
+  canonical_url: 'https://patizanrecords.com',
   hero_title: 'YOUR SOUND.\nYOUR SPACE.',
-  hero_subtitle: 'Professional recording, production, mixing, mastering and creative studio services in Tamarac, Florida.',
+  hero_subtitle:
+    'Professional recording, production, mixing, mastering and creative studio services in Tamarac, Florida.',
   hero_cta_primary: 'BOOK A SESSION',
   hero_cta_secondary: 'EXPLORE THE STUDIO',
   hero_image_url: null,
@@ -32,7 +39,6 @@ const DEFAULT_SETTINGS: SiteSettings = {
   footer_tagline: 'Built for artists. Designed for sound.',
   studio_policy: STUDIO_POLICY_DEFAULT,
   deposit_percentage: 50,
-  meta_description: 'Patizan Records — Professional recording studio in Tamarac, FL. Recording, podcast, mixing, mastering and music production services.',
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
 }
@@ -46,7 +52,9 @@ function getLocalSettings(): SiteSettings {
 }
 
 function saveLocalSettings(settings: SiteSettings) {
-  localStorage.setItem(LOCAL_SETTINGS_KEY, JSON.stringify(settings))
+  try {
+    localStorage.setItem(LOCAL_SETTINGS_KEY, JSON.stringify(settings))
+  } catch {}
 }
 
 export function useSiteSettings() {
@@ -59,12 +67,17 @@ export function useSiteSettings() {
             .from('site_settings')
             .select('*')
             .single()
-          if (!error && data) return data
-        } catch {}
+          if (!error && data) {
+            saveLocalSettings(data)
+            return data
+          }
+        } catch (err) {
+          console.warn('[useSiteSettings] Supabase error, reading local cache:', err)
+        }
       }
       return getLocalSettings()
     },
-    staleTime: 1000 * 60 * 10,
+    staleTime: 1000 * 30, // 30 seconds for responsive updates
   })
 }
 
@@ -72,26 +85,64 @@ export function useUpdateSiteSettings() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (updates: Partial<SiteSettings>) => {
+      const now = new Date().toISOString()
+      const payload = {
+        ...updates,
+        updated_at: now,
+      }
+
       if (isSupabaseConfigured) {
-        try {
-          const { data: existing } = await supabase
+        const { data: existing } = await supabase
+          .from('site_settings')
+          .select('id')
+          .single()
+
+        let updateResult: any = null
+        if (existing) {
+          const { data, error } = await supabase
             .from('site_settings')
-            .select('id')
+            .update(payload)
+            .eq('id', existing.id)
+            .select()
             .single()
 
-          if (existing) {
-            const { error } = await supabase
-              .from('site_settings')
-              .update(updates)
-              .eq('id', existing.id)
-            if (!error) return
+          if (error) {
+            throw new Error(`Failed to update site settings in database: ${error.message}`)
           }
-        } catch {}
+          updateResult = data
+        } else {
+          const { data, error } = await supabase
+            .from('site_settings')
+            .insert(payload)
+            .select()
+            .single()
+
+          if (error) {
+            throw new Error(`Failed to create site settings in database: ${error.message}`)
+          }
+          updateResult = data
+        }
+
+        // Post-update verification
+        if (updateResult) {
+          const { data: verified, error: verifyErr } = await supabase
+            .from('site_settings')
+            .select('*')
+            .eq('id', updateResult.id)
+            .single()
+
+          if (verifyErr || !verified) {
+            throw new Error('Database verification failed for site settings.')
+          }
+
+          saveLocalSettings(verified)
+          return verified
+        }
       }
 
       // Save locally
       const current = getLocalSettings()
-      const updated = { ...current, ...updates, updated_at: new Date().toISOString() }
+      const updated = { ...current, ...payload }
       saveLocalSettings(updated)
       return updated
     },

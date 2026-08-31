@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
+import { useSiteSettings } from '../../hooks/useSettings'
 
 interface SEOProps {
   title?: string
@@ -19,21 +20,29 @@ const BASE_DOMAIN = (import.meta.env.VITE_APP_URL || 'https://patizanrecords.com
 /**
  * PATIZAN RECORDS — SEO & Open Graph Metadata Manager
  * Dynamically updates document head tags, canonical link, and social previews on route transition.
+ * Uses CMS-configured settings from Supabase site_settings as the baseline source of truth.
  */
 export default function SEO({
-  title = DEFAULT_TITLE,
-  description = DEFAULT_DESCRIPTION,
+  title,
+  description,
   canonicalPath,
-  ogImage = DEFAULT_OG_IMAGE,
+  ogImage,
   ogType = 'website',
 }: SEOProps) {
   const location = useLocation()
+  const { data: settings } = useSiteSettings()
+
+  const activeTitle = title || settings?.seo_title || settings?.studio_name || DEFAULT_TITLE
+  const activeDescription = description || settings?.meta_description || DEFAULT_DESCRIPTION
+  const activeOgImage = ogImage || settings?.og_image_url || DEFAULT_OG_IMAGE
+  const activeBaseDomain = settings?.canonical_url ? settings.canonical_url.replace(/\/+$/, '') : BASE_DOMAIN
+
   const cleanPath = canonicalPath !== undefined ? canonicalPath : location.pathname
-  const canonicalUrl = `${BASE_DOMAIN}${cleanPath === '/' ? '' : cleanPath}`
+  const canonicalUrl = `${activeBaseDomain}${cleanPath === '/' ? '' : cleanPath}`
 
   useEffect(() => {
     // 1. Title
-    document.title = title
+    document.title = activeTitle
 
     // 2. Helper to set or create meta tag
     const setMeta = (name: string, content: string, isProperty = false) => {
@@ -48,23 +57,27 @@ export default function SEO({
     }
 
     // 3. Primary Meta Tags
-    setMeta('title', title)
-    setMeta('description', description)
+    setMeta('title', activeTitle)
+    setMeta('description', activeDescription)
 
     // 4. Open Graph
     setMeta('og:type', ogType, true)
     setMeta('og:url', canonicalUrl, true)
-    setMeta('og:title', title, true)
-    setMeta('og:description', description, true)
-    setMeta('og:image', ogImage, true)
-    setMeta('og:site_name', 'Patizan Records', true)
+    setMeta('og:title', activeTitle, true)
+    setMeta('og:description', activeDescription, true)
+    setMeta('og:image', activeOgImage, true)
+    setMeta('og:image:secure_url', activeOgImage, true)
+    setMeta('og:image:width', '1200', true)
+    setMeta('og:image:height', '630', true)
+    setMeta('og:image:alt', `${activeTitle} - Social Preview`, true)
+    setMeta('og:site_name', settings?.studio_name || 'Patizan Records', true)
 
     // 5. Twitter Card
     setMeta('twitter:card', 'summary_large_image')
     setMeta('twitter:url', canonicalUrl)
-    setMeta('twitter:title', title)
-    setMeta('twitter:description', description)
-    setMeta('twitter:image', ogImage)
+    setMeta('twitter:title', activeTitle)
+    setMeta('twitter:description', activeDescription)
+    setMeta('twitter:image', activeOgImage)
 
     // 6. Canonical Link Tag
     let canonicalEl = document.querySelector('link[rel="canonical"]')
@@ -74,7 +87,7 @@ export default function SEO({
       document.head.appendChild(canonicalEl)
     }
     canonicalEl.setAttribute('href', canonicalUrl)
-  }, [title, description, canonicalUrl, ogImage, ogType])
+  }, [activeTitle, activeDescription, canonicalUrl, activeOgImage, ogType, settings?.studio_name])
 
   return null
 }

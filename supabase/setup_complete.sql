@@ -337,6 +337,10 @@ CREATE TABLE IF NOT EXISTS public.site_settings (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   studio_name TEXT DEFAULT 'Patizan Records',
   tagline TEXT DEFAULT 'WHERE SOUND BECOMES CULTURE.',
+  seo_title TEXT DEFAULT 'Patizan Records | Recording Studio in Tamarac, FL',
+  meta_description TEXT DEFAULT 'Professional recording, music production, mixing, mastering, podcast and creative studio services in Tamarac, Florida.',
+  og_image_url TEXT DEFAULT 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&h=630&fit=crop&q=85',
+  canonical_url TEXT DEFAULT 'https://patizanrecords.com',
   hero_title TEXT DEFAULT 'YOUR SOUND.' || E'\n' || 'YOUR SPACE.',
   hero_subtitle TEXT,
   hero_cta_primary TEXT DEFAULT 'BOOK A SESSION',
@@ -360,7 +364,6 @@ CREATE TABLE IF NOT EXISTS public.site_settings (
   footer_tagline TEXT DEFAULT 'Built for artists. Designed for sound.',
   studio_policy TEXT,
   deposit_percentage NUMERIC(5,2) DEFAULT 50.00,
-  meta_description TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
