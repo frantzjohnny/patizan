@@ -1,12 +1,33 @@
 -- ============================================================
 -- PATIZAN RECORDS — Studio Photos Library Table & Functions
--- Execute this script in your Supabase SQL Editor.
+-- Safe, Idempotent Database Migration
+-- Execute this entire script in your Supabase SQL Editor.
 -- ============================================================
 
 -- 1. Enable uuid-ossp extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- 2. Create studio_photos table
+-- 2. Create helper function for admin checks if not present
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  IF auth.uid() IS NULL THEN
+    RETURN FALSE;
+  END IF;
+  RETURN EXISTS (
+    SELECT 1 FROM public.admin_users
+    WHERE profile_id = auth.uid() AND is_active = TRUE
+  );
+EXCEPTION
+  WHEN OTHERS THEN
+    RETURN (auth.role() = 'authenticated');
+END;
+$$;
+
+-- 3. Create studio_photos table
 CREATE TABLE IF NOT EXISTS public.studio_photos (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   title TEXT NOT NULL,
@@ -21,26 +42,26 @@ CREATE TABLE IF NOT EXISTS public.studio_photos (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 3. Indexes for high performance
+-- 4. Indexes for high performance
 CREATE INDEX IF NOT EXISTS idx_studio_photos_active_order ON public.studio_photos (is_active, display_order);
 CREATE INDEX IF NOT EXISTS idx_studio_photos_category ON public.studio_photos (category);
 CREATE INDEX IF NOT EXISTS idx_studio_photos_order ON public.studio_photos (display_order);
 
--- 4. Enforce at most ONE active SEO image via Partial Unique Index
+-- 5. Enforce at most ONE active SEO image via Partial Unique Index
 CREATE UNIQUE INDEX IF NOT EXISTS idx_studio_photos_seo_unique 
   ON public.studio_photos (is_seo_image) 
   WHERE is_seo_image = TRUE;
 
--- 5. Enable Row Level Security (RLS)
+-- 6. Enable Row Level Security (RLS)
 ALTER TABLE public.studio_photos ENABLE ROW LEVEL SECURITY;
 
--- 6. Drop existing policies to prevent conflicts
+-- 7. Drop existing policies to prevent conflicts
 DROP POLICY IF EXISTS "Public can read active studio photos" ON public.studio_photos;
 DROP POLICY IF EXISTS "Admins manage studio photos" ON public.studio_photos;
 DROP POLICY IF EXISTS "Public select studio_photos" ON public.studio_photos;
 DROP POLICY IF EXISTS "Admins manage studio_photos" ON public.studio_photos;
 
--- 7. Define Policies:
+-- 8. Define Policies:
 -- Public can view active studio photos (and admins can view all)
 CREATE POLICY "Public select studio_photos" ON public.studio_photos
   FOR SELECT USING (is_active = TRUE OR (SELECT public.is_admin()) OR auth.role() = 'authenticated');
@@ -50,7 +71,7 @@ CREATE POLICY "Admins manage studio_photos" ON public.studio_photos
   FOR ALL USING ((SELECT public.is_admin()) OR auth.role() = 'authenticated')
   WITH CHECK ((SELECT public.is_admin()) OR auth.role() = 'authenticated');
 
--- 8. Stored Procedure: Atomically set official SEO image
+-- 9. Stored Procedure: Atomically set official SEO image
 CREATE OR REPLACE FUNCTION public.set_studio_photo_seo(target_photo_id UUID)
 RETURNS VOID
 LANGUAGE plpgsql
@@ -81,3 +102,6 @@ BEGIN
   WHERE id IS NOT NULL;
 END;
 $$;
+
+-- 10. Force PostgREST schema cache reload
+NOTIFY pgrst, 'reload schema';
