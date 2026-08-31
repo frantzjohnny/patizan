@@ -356,6 +356,8 @@ body {
   }
 }
 
-.has-player {
-  padding-bottom: var(--player-height);
+@media (min-width: 768px) {
+  .has-player {
+    padding-bottom: var(--player-height);
+  }
 }

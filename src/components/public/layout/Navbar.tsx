@@ -32,7 +32,8 @@ export default function Navbar() {
     <>
       <motion.header
         className={cn(
-          'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
+          'fixed top-0 left-0 right-0 transition-all duration-500',
+          isMobileMenuOpen ? 'z-[96]' : 'z-50',
           isTransparent
             ? 'bg-transparent'
             : 'bg-black/95 backdrop-blur-md border-b border-gray-border/50'

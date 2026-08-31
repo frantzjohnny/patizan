@@ -11,8 +11,9 @@ interface SEOProps {
 
 const DEFAULT_TITLE = 'Patizan Records | Recording Studio in Tamarac, FL'
 const DEFAULT_DESCRIPTION =
-  'Patizan Records is a premier recording studio in Tamarac, FL. Professional vocal recording, podcast production, mixing, mastering, beat production, and creative facilities in South Florida.'
-const DEFAULT_OG_IMAGE = 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&q=85&auto=format&fit=crop'
+  'Professional recording, music production, mixing, mastering, podcast and creative studio services in Tamarac, Florida.'
+const DEFAULT_OG_IMAGE =
+  'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&h=630&fit=crop&q=85'
 const BASE_DOMAIN = (import.meta.env.VITE_APP_URL || 'https://patizanrecords.com').replace(/\/+$/, '')
 
 /**
