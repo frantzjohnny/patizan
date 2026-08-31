@@ -105,17 +105,30 @@ export function useServicePackages(serviceId?: string, activeOnly = true) {
             .from('service_packages')
             .select('*, service:services(*)')
             .order('display_order', { ascending: true })
-          if (serviceId) q = q.eq('service_id', serviceId)
+          if (serviceId) {
+            const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(serviceId)
+            if (isUuid) {
+              q = q.eq('service_id', serviceId)
+            }
+          }
           if (activeOnly) q = q.eq('is_active', true)
           const { data, error } = await q
           if (!error && data && data.length > 0) {
             saveLocalPackages(data)
             return data
           }
-        } catch {}
+        } catch (err) {
+          console.warn('[useServicePackages] Supabase query failed, using local cache:', err)
+        }
       }
       let local = getLocalPackages()
-      if (serviceId) local = local.filter((p) => p.service_id === serviceId)
+      if (serviceId) {
+        // Match exact service_id OR allow default fallback packages for recording service
+        const matched = local.filter((p) => p.service_id === serviceId)
+        if (matched.length > 0) {
+          return activeOnly ? matched.filter((p) => p.is_active) : matched
+        }
+      }
       if (activeOnly) local = local.filter((p) => p.is_active)
       return local
     },

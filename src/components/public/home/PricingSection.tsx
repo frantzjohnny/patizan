@@ -15,7 +15,7 @@ function RateCard({
   index: number
   serviceId?: string
 }) {
-  const isFeatured = pkg.is_featured
+  const isBestValue = pkg.is_featured || pkg.name.toLowerCase().includes('full session')
 
   // Clean package name formatting
   const rawName = pkg.name.replace(/—.*$/, '').trim()
@@ -33,20 +33,20 @@ function RateCard({
       viewport={{ once: true, amount: 0.15 }}
       transition={{ duration: 0.6, delay: 0.08 + index * 0.08 }}
       className={`group relative rounded-2xl p-7 md:p-8 flex flex-col justify-between transition-all duration-300 ${
-        isFeatured
-          ? 'bg-[#141414] border-2 border-orange shadow-[0_0_35px_rgba(255,122,0,0.15)]'
+        isBestValue
+          ? 'bg-[#141414] border-2 border-orange shadow-[0_0_35px_rgba(255,122,0,0.18)]'
           : 'bg-[#0e0e0e] border border-white/10 hover:border-orange/40 hover:bg-[#121212]'
       }`}
     >
-      {/* Top Header: Editorial Number & Optional Featured Label */}
+      {/* Top Header: Editorial Number & BEST VALUE Badge */}
       <div>
         <div className="flex items-center justify-between gap-2 mb-6">
           <span className="font-mono text-xs text-offwhite/40 tracking-widest">
             0{index + 1}
           </span>
-          {isFeatured && (
-            <span className="px-2.5 py-1 rounded-full bg-orange/15 border border-orange/40 text-orange text-[10px] font-heading font-bold tracking-widest uppercase">
-              FEATURED
+          {isBestValue && (
+            <span className="px-3 py-1 rounded-full bg-orange/20 border border-orange text-orange text-[10px] font-heading font-bold tracking-widest uppercase">
+              BEST VALUE
             </span>
           )}
         </div>
@@ -86,7 +86,7 @@ function RateCard({
         <Link
           to={`/book-session?package=${pkg.id}&service=${pkg.service_id || serviceId || ''}`}
           className={`w-full text-center py-4 rounded-xl font-heading font-bold text-xs md:text-sm tracking-wider uppercase inline-flex items-center justify-center gap-2 transition-all duration-200 ${
-            isFeatured
+            isBestValue
               ? 'bg-orange text-black hover:bg-[#FFA043] shadow-[0_0_20px_rgba(255,122,0,0.35)]'
               : 'bg-white/5 border border-white/15 text-offwhite hover:border-orange hover:text-orange hover:bg-black/60'
           }`}
