@@ -4,6 +4,7 @@ import { Save, Sliders, Shield, Megaphone, Globe, Upload, Image as ImageIcon, Ex
 import { uploadImage } from '../../lib/storage'
 import { getErrorMessage } from '../../lib/supabaseErrors'
 import { STUDIO_POLICY_DEFAULT } from '../../lib/constants'
+import { DEFAULT_STUDIO_SEO_IMAGE } from '../../data/studioImages'
 import toast from 'react-hot-toast'
 
 export default function SiteSettingsPage() {
@@ -23,7 +24,7 @@ export default function SiteSettingsPage() {
     seo_title: 'Patizan Records | Recording Studio in Tamarac, FL',
     meta_description:
       'Professional recording, music production, mixing, mastering, podcast and creative studio services in Tamarac, Florida.',
-    og_image_url: 'https://patizanrecords.com/images/og-default.svg',
+    og_image_url: `https://patizanrecords.com${DEFAULT_STUDIO_SEO_IMAGE}`,
     canonical_url: 'https://patizanrecords.com',
   })
 
@@ -46,7 +47,7 @@ export default function SiteSettingsPage() {
           settings.meta_description ||
           'Professional recording, music production, mixing, mastering, podcast and creative studio services in Tamarac, Florida.',
         og_image_url:
-          settings.og_image_url || 'https://patizanrecords.com/images/og-default.svg',
+          settings.og_image_url || `https://patizanrecords.com${DEFAULT_STUDIO_SEO_IMAGE}`,
         canonical_url: settings.canonical_url || 'https://patizanrecords.com',
       })
     }

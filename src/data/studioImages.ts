@@ -1,8 +1,10 @@
 /**
- * Patizan Records — Centralized Local Studio Images Configuration
- * Source of Truth for all official facility photography across the website.
+ * =========================================================================
+ * PATIZAN RECORDS — Centralized Studio Photography & SEO Configuration
+ * Single Source of Truth for all facility photography and social preview metadata.
  *
- * Files are located statically in: /public/images/studio/
+ * Local Static Directory: /public/images/studio/
+ * =========================================================================
  */
 
 export interface StudioRoomImage {
@@ -17,9 +19,22 @@ export interface StudioRoomImage {
 }
 
 /**
- * Official default OpenGraph / Twitter social preview image
+ * =========================================================================
+ * 🎯 OFFICIAL WEBSITE SEO & SOCIAL PREVIEW IMAGE (SINGLE SOURCE OF TRUTH)
+ * =========================================================================
+ * To change the official OpenGraph / Twitter / Google social preview image
+ * across the entire website, simply edit this ONE value below:
+ *
+ * Available Options:
+ *  - '/images/studio/control-room.jpg'    (Main Control Room A)
+ *  - '/images/studio/recording-booth.jpg' (Acoustic Vocal Booth)
+ *  - '/images/studio/podcast-setup.jpg'   (Podcast & Creator Suite)
+ *  - '/images/studio/equipment.jpg'       (Hardware Gear & Microphones)
+ *  - '/images/studio/live-room.jpg'       (Live Tracking Room)
+ *  - '/images/studio/studio-interior.jpg' (VIP Creator Lounge)
+ *  - '/images/studio/studio-exterior.jpg' (Studio Facility Entrance)
  */
-export const DEFAULT_STUDIO_SEO_IMAGE = '/images/studio/control-room.jpg'
+export const DEFAULT_STUDIO_SEO_IMAGE: string = '/images/studio/control-room.jpg'
 
 /**
  * Centralized list of Studio facility spaces and photographs
@@ -101,6 +116,18 @@ export const STUDIO_ROOM_IMAGES: StudioRoomImage[] = [
  * smoothly fall back to the branded local SVG asset.
  */
 export const STUDIO_FALLBACK_IMAGE = '/images/studio-placeholder.svg'
+
+/**
+ * Returns the verified active SEO image URL, defaulting safely
+ * to DEFAULT_STUDIO_SEO_IMAGE or the first studio photo.
+ */
+export function getActiveStudioSeoImage(): string {
+  if (DEFAULT_STUDIO_SEO_IMAGE) {
+    return DEFAULT_STUDIO_SEO_IMAGE
+  }
+  const first = STUDIO_ROOM_IMAGES[0]
+  return first ? first.imageSrc : STUDIO_FALLBACK_IMAGE
+}
 
 export function handleStudioImageError(e: React.SyntheticEvent<HTMLImageElement, Event>) {
   const target = e.currentTarget

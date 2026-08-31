@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { STUDIO_POLICY_DEFAULT } from '../lib/constants'
+import { DEFAULT_STUDIO_SEO_IMAGE } from '../data/studioImages'
 import type { SiteSettings } from '../types'
 
 const LOCAL_SETTINGS_KEY = 'patizan_local_settings'
@@ -12,7 +13,7 @@ const DEFAULT_SETTINGS: SiteSettings = {
   seo_title: 'Patizan Records | Recording Studio in Tamarac, FL',
   meta_description:
     'Professional recording, music production, mixing, mastering, podcast and creative studio services in Tamarac, Florida.',
-  og_image_url: 'https://patizanrecords.com/images/og-default.svg',
+  og_image_url: `https://patizanrecords.com${DEFAULT_STUDIO_SEO_IMAGE}`,
   canonical_url: 'https://patizanrecords.com',
   hero_title: 'YOUR SOUND.\nYOUR SPACE.',
   hero_subtitle:

@@ -14,6 +14,7 @@ import {
 } from '../../hooks/useStudioPhotos'
 import { uploadImage } from '../../lib/storage'
 import { getErrorMessage } from '../../lib/supabaseErrors'
+import { DEFAULT_STUDIO_SEO_IMAGE, handleStudioImageError } from '../../data/studioImages'
 import toast from 'react-hot-toast'
 import type { StudioPhoto, StudioPhotoCategory } from '../../types'
 
@@ -475,8 +476,9 @@ export default function StudioPhotosAdminPage() {
                   />
                 ) : (
                   <img
-                    src="/images/og-default.svg"
+                    src={DEFAULT_STUDIO_SEO_IMAGE}
                     alt="SEO Default"
+                    onError={handleStudioImageError}
                     className="w-full h-full object-cover"
                   />
                 )}
