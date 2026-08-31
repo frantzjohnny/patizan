@@ -181,7 +181,7 @@ export default function Footer() {
             </p>
             <span className="hidden sm:inline text-gray-border">·</span>
             <p>
-              Desenvolvido por{' '}
+              Developed by{' '}
               <a
                 href="mailto:hello@johnnyfrantz.com"
                 className="text-offwhite/80 hover:text-orange transition-colors font-medium underline underline-offset-4 decoration-orange/40 hover:decoration-orange"
