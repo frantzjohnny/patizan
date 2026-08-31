@@ -18,7 +18,7 @@ export const INITIAL_HOME_MEDIA: HomeMediaItem[] = [
     slot_key: 'home_showcase_1',
     title: 'Studio Showcase 01 — Control Room',
     description: 'Large feature image in "The Space Itself" facility showcase.',
-    image_url: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800&q=80',
+    image_url: 'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=800&q=80',
     alt_text: 'Patizan Records Control Room',
     is_active: true,
     updated_at: new Date().toISOString(),

@@ -7,7 +7,7 @@ import { useHomeMedia } from '../../../hooks/useHomeMedia'
 const DEFAULT_ITEMS = [
   {
     slot_key: 'home_showcase_1',
-    src: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800&q=80',
+    src: 'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=800&q=80',
     label: 'Control Room',
     alt: 'Control Room',
     span: 'lg:col-span-2 lg:row-span-2',

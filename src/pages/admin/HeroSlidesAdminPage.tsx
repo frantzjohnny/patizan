@@ -44,7 +44,7 @@ function SlideEditorModal({ slide, onClose, totalSlides }: SlideModalProps) {
       'A professional recording environment built for artists, producers and creators in South Florida.',
     background_image:
       slide?.background_image ||
-      'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1920&q=85&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=1920&q=85&auto=format&fit=crop',
     image_position: (slide?.image_position || 'center') as HeroImagePosition,
     primary_button_text: slide?.primary_button_text || 'BOOK A SESSION',
     primary_button_link: slide?.primary_button_link || '/book-session',

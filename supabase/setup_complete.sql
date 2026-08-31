@@ -339,7 +339,7 @@ CREATE TABLE IF NOT EXISTS public.site_settings (
   tagline TEXT DEFAULT 'WHERE SOUND BECOMES CULTURE.',
   seo_title TEXT DEFAULT 'Patizan Records | Recording Studio in Tamarac, FL',
   meta_description TEXT DEFAULT 'Professional recording, music production, mixing, mastering, podcast and creative studio services in Tamarac, Florida.',
-  og_image_url TEXT DEFAULT 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&h=630&fit=crop&q=85',
+  og_image_url TEXT DEFAULT 'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=1200&h=630&fit=crop&q=85',
   canonical_url TEXT DEFAULT 'https://patizanrecords.com',
   hero_title TEXT DEFAULT 'YOUR SOUND.' || E'\n' || 'YOUR SPACE.',
   hero_subtitle TEXT,
@@ -567,7 +567,7 @@ ON CONFLICT DO NOTHING;
 -- Home Page Media Slots Seed
 INSERT INTO public.home_media (slot_key, title, description, image_url, alt_text, is_active) VALUES
   ('home_studio_intro', 'Studio Intro (About Section)', 'Featured studio image displayed next to "More Than A Studio" on the homepage.', 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=800&q=80', 'Patizan Records Recording Studio Tamarac', TRUE),
-  ('home_showcase_1', 'Studio Showcase 01 — Control Room', 'Large feature image in "The Space Itself" facility showcase.', 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800&q=80', 'Patizan Records Control Room', TRUE),
+  ('home_showcase_1', 'Studio Showcase 01 — Control Room', 'Large feature image in "The Space Itself" facility showcase.', 'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=800&q=80', 'Patizan Records Control Room', TRUE),
   ('home_showcase_2', 'Studio Showcase 02 — Mixing Console', 'Mixing console slot in the facility grid.', 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=600&q=80', 'Analog & Digital Mixing Console at Patizan Records', TRUE),
   ('home_showcase_3', 'Studio Showcase 03 — Recording Booth', 'Acoustically isolated vocal booth slot.', 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80', 'Acoustic Vocal Recording Booth', TRUE),
   ('home_showcase_4', 'Studio Showcase 04 — Podcast Suite', 'Multi-camera podcast and broadcast setup slot.', 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=600&q=80', 'Podcast Production Suite', TRUE),
@@ -588,7 +588,7 @@ ON CONFLICT (day_of_week) DO NOTHING;
 -- Hero Slides
 INSERT INTO public.hero_slides (id, title, subtitle, description, background_image, image_position, primary_button_text, primary_button_link, secondary_button_text, secondary_button_link, is_active, display_order)
 VALUES
-  ('a1b2c3d4-e5f6-4a5b-8c9d-012345678901', 'YOUR SOUND.' || E'\n' || 'YOUR SPACE.', 'PATIZAN RECORDS', 'A professional recording environment built for artists, producers and creators in South Florida.', 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1920&q=85&auto=format&fit=crop', 'center', 'BOOK A SESSION', '/book-session', 'EXPLORE THE STUDIO', '/studio', TRUE, 1),
+  ('a1b2c3d4-e5f6-4a5b-8c9d-012345678901', 'YOUR SOUND.' || E'\n' || 'YOUR SPACE.', 'PATIZAN RECORDS', 'A professional recording environment built for artists, producers and creators in South Florida.', 'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=1920&q=85&auto=format&fit=crop', 'center', 'BOOK A SESSION', '/book-session', 'EXPLORE THE STUDIO', '/studio', TRUE, 1),
   ('a1b2c3d4-e5f6-4a5b-8c9d-012345678902', 'TURN YOUR IDEAS' || E'\n' || 'INTO SOUND.', 'RECORDING • PRODUCTION • MIXING', 'From the first take to the final master, create music in a professional studio designed around your sound.', 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=1920&q=85&auto=format&fit=crop', 'center', 'BOOK A SESSION', '/book-session', 'OUR SERVICES', '/services', TRUE, 2),
   ('a1b2c3d4-e5f6-4a5b-8c9d-012345678903', 'MAKE SOMETHING' || E'\n' || 'PEOPLE REMEMBER.', 'MUSIC PRODUCTION', 'Professional recording, beat production, mixing and mastering for artists ready to elevate their sound.', 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1920&q=85&auto=format&fit=crop', 'center', 'BOOK A SESSION', '/book-session', 'EXPLORE MUSIC', '/music', TRUE, 3),
   ('a1b2c3d4-e5f6-4a5b-8c9d-012345678904', 'YOUR VOICE' || E'\n' || 'DESERVES A STUDIO.', 'PODCAST • VOICE • CONTENT', 'Professional recording for podcasts, voiceovers, commercials and digital content.', 'https://images.unsplash.com/photo-1589903188900-85dae523342b?w=1920&q=85&auto=format&fit=crop', 'center', 'BOOK A SESSION', '/book-session', 'VIEW SERVICES', '/services', TRUE, 4),

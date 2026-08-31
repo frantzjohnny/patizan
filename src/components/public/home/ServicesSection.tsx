@@ -7,7 +7,7 @@ import { formatCurrency } from '../../../lib/utils'
 import type { Service } from '../../../types'
 
 const DEFAULT_SERVICE_IMAGES: Record<string, string> = {
-  recording: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1600&q=85&auto=format&fit=crop',
+  recording: 'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=1600&q=85&auto=format&fit=crop',
   podcast: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=1000&q=80&auto=format&fit=crop',
   'voice-over': 'https://images.unsplash.com/photo-1589903188900-85dae523342b?w=1000&q=80&auto=format&fit=crop',
   'mixing-mastering': 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=1000&q=80&auto=format&fit=crop',

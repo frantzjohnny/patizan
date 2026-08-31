@@ -120,7 +120,7 @@ WITH drill AS (SELECT id FROM beat_categories WHERE slug = 'drill'),
 INSERT INTO music_tracks (
   title, artist, audio_url, cover_url, duration_seconds, bpm, key, genre, price, is_beat, beat_category_id, is_featured, is_published, display_order
 ) VALUES
-  ('Tamarac Night', 'Patizan Records', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800&q=80', 215, 140, 'C# Minor', 'Drill', 39.99, TRUE, (SELECT id FROM drill), TRUE, TRUE, 1),
+  ('Tamarac Night', 'Patizan Records', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', 'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=800&q=80', 215, 140, 'C# Minor', 'Drill', 39.99, TRUE, (SELECT id FROM drill), TRUE, TRUE, 1),
   ('Island Heat', 'Patizan Records', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=800&q=80', 184, 108, 'G Minor', 'Afro', 49.99, TRUE, (SELECT id FROM afro), TRUE, TRUE, 2),
   ('Caribbean Pulse', 'Patizan Records', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80', 198, 115, 'F Major', 'Compas', 49.99, TRUE, (SELECT id FROM compas), TRUE, TRUE, 3)
 ON CONFLICT DO NOTHING;
@@ -141,7 +141,7 @@ ON CONFLICT (slug) DO NOTHING;
 
 WITH studio_cat AS (SELECT id FROM gallery_categories WHERE slug = 'studio')
 INSERT INTO gallery_items (category_id, title, description, media_type, url, thumbnail_url, is_featured, is_published, display_order) VALUES
-  ((SELECT id FROM studio_cat), 'Control Room A', 'Main mixing and vocal tracking console.', 'image', 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&q=80', 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&q=80', TRUE, TRUE, 1),
+  ((SELECT id FROM studio_cat), 'Control Room A', 'Main mixing and vocal tracking console.', 'image', 'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=1200&q=80', 'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=600&q=80', TRUE, TRUE, 1),
   ((SELECT id FROM studio_cat), 'Analog Mixing Suite', 'Solid State Logic and analog outboard processors.', 'image', 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=1200&q=80', 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=600&q=80', TRUE, TRUE, 2),
   ((SELECT id FROM studio_cat), 'Live Room & Vocal Booth', 'Acoustically tuned isolation booth.', 'image', 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1200&q=80', 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80', TRUE, TRUE, 3),
   ((SELECT id FROM studio_cat), 'Podcast Recording Lounge', 'Multi-microphone broadcast desk.', 'image', 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=1200&q=80', 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=600&q=80', TRUE, TRUE, 4),
@@ -172,7 +172,7 @@ INSERT INTO blog_posts (
     'prepare-for-studio-session',
     'Maximize your studio time and walk away with your best vocal takes by following these 5 key studio prep strategies.',
     '<p>Stepping into a professional recording studio is an exciting milestone for any artist. To make the most out of every paid hour, preparation is everything.</p><h3>1. Know Your Lyrics and Arrangements Cold</h3><p>Rehearse your vocals and delivery beforehand so you can focus on emotion and cadence instead of reading off your phone.</p><h3>2. Bring Backing Tracks and Stems on a Flash Drive</h3><p>Always have WAV format instrumentals and trackouts organized in clean folders.</p><h3>3. Rest Your Voice and Hydrate</h3><p>Drink room-temperature water and avoid excessive dairy or caffeine right before recording.</p>',
-    'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&q=80',
+    'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=1200&q=80',
     'Patizan Records Staff',
     TRUE,
     TRUE,
@@ -216,7 +216,7 @@ VALUES
     'YOUR SOUND.' || E'\n' || 'YOUR SPACE.',
     'PATIZAN RECORDS',
     'A professional recording environment built for artists, producers and creators in South Florida.',
-    'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1920&q=85&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=1920&q=85&auto=format&fit=crop',
     'center',
     'BOOK A SESSION',
     '/book-session',

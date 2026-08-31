@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import SEO from '../../components/common/SEO'
 
 const STUDIO_IMAGES = [
-  { src: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&q=80', label: 'Control Room', desc: 'The nerve center of every session.' },
+  { src: 'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=1200&q=80', label: 'Control Room', desc: 'The nerve center of every session.' },
   { src: 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=800&q=80', label: 'Mixing Console', desc: 'Analog warmth meets digital precision.' },
   { src: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80', label: 'Live Room', desc: 'Acoustically treated for perfect recordings.' },
   { src: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=800&q=80', label: 'Podcast Booth', desc: 'Broadcast-ready setup for content creators.' },
@@ -24,7 +24,7 @@ export default function StudioPage() {
       <section className="relative min-h-[70vh] flex items-end pb-20 pt-40 overflow-hidden bg-black">
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1920&q=80"
+            src="https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=1920&q=80"
             alt="Patizan Records Studio"
             className="w-full h-full object-cover opacity-50"
           />

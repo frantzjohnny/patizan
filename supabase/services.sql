@@ -76,7 +76,7 @@ VALUES
     'recording',
     'Professional vocal and instrument recording sessions with industry-standard signal chain.',
     'State-of-the-art recording environment designed for artists, bands, and solo performers. Achieve the perfect take with our professional-grade microphones, acoustic treatment, and experienced engineers.',
-    'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1200&q=85&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=1200&q=85&auto=format&fit=crop',
     40.00,
     TRUE,
     TRUE,

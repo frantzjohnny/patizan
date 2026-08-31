@@ -46,7 +46,7 @@ CREATE POLICY "Admins manage home_media" ON public.home_media
 -- 7. Seed Initial Home Media Slots (if not exists)
 INSERT INTO public.home_media (slot_key, title, description, image_url, alt_text, is_active) VALUES
   ('home_studio_intro', 'Studio Intro (About Section)', 'Featured studio image displayed next to "More Than A Studio" on the homepage.', 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=800&q=80', 'Patizan Records Recording Studio Tamarac', TRUE),
-  ('home_showcase_1', 'Studio Showcase 01 — Control Room', 'Large feature image in "The Space Itself" facility showcase.', 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800&q=80', 'Patizan Records Control Room', TRUE),
+  ('home_showcase_1', 'Studio Showcase 01 — Control Room', 'Large feature image in "The Space Itself" facility showcase.', 'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=800&q=80', 'Patizan Records Control Room', TRUE),
   ('home_showcase_2', 'Studio Showcase 02 — Mixing Console', 'Mixing console slot in the facility grid.', 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=600&q=80', 'Analog & Digital Mixing Console at Patizan Records', TRUE),
   ('home_showcase_3', 'Studio Showcase 03 — Recording Booth', 'Acoustically isolated vocal booth slot.', 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80', 'Acoustic Vocal Recording Booth', TRUE),
   ('home_showcase_4', 'Studio Showcase 04 — Podcast Suite', 'Multi-camera podcast and broadcast setup slot.', 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=600&q=80', 'Podcast Production Suite', TRUE),

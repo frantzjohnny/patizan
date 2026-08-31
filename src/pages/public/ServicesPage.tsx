@@ -7,7 +7,7 @@ import type { Service } from '../../types'
 import SEO from '../../components/common/SEO'
 
 const DEFAULT_SERVICE_IMAGES: Record<string, string> = {
-  recording: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1600&q=85&auto=format&fit=crop',
+  recording: 'https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=1600&q=85&auto=format&fit=crop',
   podcast: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=1000&q=80&auto=format&fit=crop',
   'voice-over': 'https://images.unsplash.com/photo-1589903188900-85dae523342b?w=1000&q=80&auto=format&fit=crop',
   'mixing-mastering': 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=1000&q=80&auto=format&fit=crop',
@@ -125,7 +125,7 @@ export default function ServicesPage() {
       <section className="relative min-h-[48vh] flex items-end pb-16 pt-36 bg-black overflow-hidden border-b border-white/10">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1920&q=85&auto=format&fit=crop"
+            src="https://images.unsplash.com/photo-1598653222000-6b7b7a552625?w=1920&q=85&auto=format&fit=crop"
             alt="Patizan Records Studio"
             className="w-full h-full object-cover opacity-30"
           />
