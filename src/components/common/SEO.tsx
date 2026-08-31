@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useSiteSettings } from '../../hooks/useSettings'
+import { DEFAULT_STUDIO_SEO_IMAGE } from '../../data/studioImages'
 
 interface SEOProps {
   title?: string
@@ -14,12 +15,22 @@ const BASE_DOMAIN = (import.meta.env.VITE_APP_URL || 'https://patizanrecords.com
 const DEFAULT_TITLE = 'Patizan Records | Recording Studio in Tamarac, FL'
 const DEFAULT_DESCRIPTION =
   'Professional recording, music production, mixing, mastering, podcast and creative studio services in Tamarac, Florida.'
-const DEFAULT_OG_IMAGE = `${BASE_DOMAIN}/images/og-default.svg`
+const DEFAULT_OG_IMAGE = `${BASE_DOMAIN}${DEFAULT_STUDIO_SEO_IMAGE}`
+
+/**
+ * Helper to ensure OpenGraph image URL is always a fully qualified absolute URL
+ */
+function resolveAbsoluteImageUrl(url: string, baseDomain: string): string {
+  if (!url) return `${baseDomain}${DEFAULT_STUDIO_SEO_IMAGE}`
+  if (url.startsWith('http://') || url.startsWith('https://')) return url
+  const cleanPath = url.startsWith('/') ? url : `/${url}`
+  return `${baseDomain}${cleanPath}`
+}
 
 /**
  * PATIZAN RECORDS — SEO & Open Graph Metadata Manager
  * Dynamically updates document head tags, canonical link, and social previews on route transition.
- * Uses CMS-configured settings from Supabase site_settings as the baseline source of truth.
+ * Uses official local Studio photography as the primary social preview image.
  */
 export default function SEO({
   title,
@@ -33,8 +44,10 @@ export default function SEO({
 
   const activeTitle = title || settings?.seo_title || settings?.studio_name || DEFAULT_TITLE
   const activeDescription = description || settings?.meta_description || DEFAULT_DESCRIPTION
-  const activeOgImage = ogImage || settings?.og_image_url || DEFAULT_OG_IMAGE
   const activeBaseDomain = settings?.canonical_url ? settings.canonical_url.replace(/\/+$/, '') : BASE_DOMAIN
+  
+  const rawOgImage = ogImage || settings?.og_image_url || DEFAULT_OG_IMAGE
+  const activeOgImage = resolveAbsoluteImageUrl(rawOgImage, activeBaseDomain)
 
   const cleanPath = canonicalPath !== undefined ? canonicalPath : location.pathname
   const canonicalUrl = `${activeBaseDomain}${cleanPath === '/' ? '' : cleanPath}`

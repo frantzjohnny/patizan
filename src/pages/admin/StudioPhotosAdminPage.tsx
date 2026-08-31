@@ -424,6 +424,17 @@ export default function StudioPhotosAdminPage() {
         </button>
       </div>
 
+      {/* Static Local Asset Info Strip */}
+      <div className="p-4 rounded-xl bg-orange/10 border border-orange/25 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-offwhite/80">
+        <div className="flex items-center gap-2.5">
+          <div className="w-2 h-2 rounded-full bg-orange animate-pulse" />
+          <span>
+            <strong>Local Photography Directory Active:</strong> Public Studio pages read static assets from <code className="text-orange font-mono bg-black/40 px-2 py-0.5 rounded">public/images/studio/</code>.
+          </span>
+        </div>
+        <span className="text-offwhite/50 text-[11px]">Zero database lock / Instant static loading</span>
+      </div>
+
       {/* SEO Social Share Preview Banner */}
       <div className="p-6 rounded-2xl bg-gradient-to-r from-charcoal via-navy to-charcoal border border-gold/30 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-gold/5 rounded-full blur-[100px] pointer-events-none" />
@@ -438,7 +449,7 @@ export default function StudioPhotosAdminPage() {
               Website OpenGraph Image
             </h3>
             <p className="text-xs text-offwhite/70 font-body leading-relaxed mb-4">
-              When someone shares <span className="text-orange font-mono">patizanrecords.com</span> on iMessage, Twitter, WhatsApp, or Facebook, this exact studio photo appears as the hero banner.
+              When someone shares <span className="text-orange font-mono">patizanrecords.com</span> on iMessage, Twitter, WhatsApp, or Facebook, the official local studio photo <span className="text-orange font-mono">/images/studio/control-room.jpg</span> appears as the hero banner.
             </p>
             {currentSeoPhoto ? (
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gold/10 border border-gold/40 text-gold text-xs font-heading font-semibold">
@@ -447,7 +458,7 @@ export default function StudioPhotosAdminPage() {
               </div>
             ) : (
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-offwhite/50 text-xs">
-                Using default branded fallback asset
+                Using /images/studio/control-room.jpg
               </div>
             )}
           </div>
