@@ -175,15 +175,28 @@ export default function Footer() {
       {/* Bottom Bar */}
       <div className="border-t border-gray-border/30 py-6">
         <div className="container-wide flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-gray-muted text-xs font-body">
-            © {year} {STUDIO_INFO.name}. All rights reserved.
-          </p>
-          <div className="flex items-center gap-6">
-            <Link to="/contact" className="text-gray-muted text-xs hover:text-orange transition-colors">
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-xs font-body text-center sm:text-left text-gray-muted">
+            <p>
+              © {year} {STUDIO_INFO.name}. All rights reserved.
+            </p>
+            <span className="hidden sm:inline text-gray-border">·</span>
+            <p>
+              Desenvolvido por{' '}
+              <a
+                href="mailto:hello@johnnyfrantz.com"
+                className="text-offwhite/80 hover:text-orange transition-colors font-medium underline underline-offset-4 decoration-orange/40 hover:decoration-orange"
+                title="Send email to Johnny Frantz"
+              >
+                Johnny Frantz
+              </a>
+            </p>
+          </div>
+          <div className="flex items-center gap-6 text-xs font-body">
+            <Link to="/contact" className="text-gray-muted hover:text-orange transition-colors">
               Contact
             </Link>
             <span className="text-gray-border">·</span>
-            <Link to="/admin" className="text-gray-muted text-xs hover:text-orange transition-colors">
+            <Link to="/admin" className="text-gray-muted hover:text-orange transition-colors">
               Admin
             </Link>
           </div>
