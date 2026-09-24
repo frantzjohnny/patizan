@@ -100,19 +100,26 @@ export function useCreateBooking() {
         .single()
       if (error) throw error
 
-      // Create notification
-      await supabase.from('notifications').insert({
-        type: 'new_booking',
-        title: 'New Booking Request',
-        message: `${booking.full_name} requested a session for ${booking.preferred_date}`,
-        booking_id: data.id,
-      })
+      // 1. Create in-app notification
+      try {
+        await supabase.from('notifications').insert({
+          type: 'new_booking',
+          title: 'New Booking Request',
+          message: `${booking.full_name} requested a session for ${booking.preferred_date}${
+            booking.coupon_code ? ` (Coupon: ${booking.coupon_code})` : ''
+          }`,
+          booking_id: data.id,
+        })
+      } catch {}
 
       return data
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['bookings'] })
       qc.invalidateQueries({ queryKey: ['booking-stats'] })
+      qc.invalidateQueries({ queryKey: ['booked-slots'] })
+      qc.invalidateQueries({ queryKey: ['coupons'] })
+      qc.invalidateQueries({ queryKey: ['coupon-usage'] })
     },
   })
 }
@@ -144,17 +151,21 @@ export function useUpdateBookingStatus() {
       const { error } = await supabase.from('bookings').update(updates).eq('id', id)
       if (error) throw error
 
-      // Log status change
-      await supabase.from('booking_status_history').insert({
-        booking_id: id,
-        status,
-        notes: adminNotes,
-      })
+      // Log status change (ignore if table doesn't exist)
+      try {
+        await supabase.from('booking_status_history').insert({
+          booking_id: id,
+          status,
+          notes: adminNotes,
+        })
+      } catch {}
     },
     onSuccess: (_, { id }) => {
       qc.invalidateQueries({ queryKey: ['bookings'] })
       qc.invalidateQueries({ queryKey: ['booking', id] })
       qc.invalidateQueries({ queryKey: ['booking-stats'] })
+      qc.invalidateQueries({ queryKey: ['booked-slots'] })
+      qc.invalidateQueries({ queryKey: ['calendar-bookings'] })
     },
   })
 }
@@ -203,3 +214,52 @@ export function useCalendarBookings(year: number, month: number) {
     },
   })
 }
+
+export function useBookedSlotsForDate(date: string) {
+  return useQuery({
+    queryKey: ['booked-slots', date],
+    queryFn: async (): Promise<{ startTime: string; endTime: string }[]> => {
+      if (!date) return []
+
+      // 1. Try public RPC
+      try {
+        const { data: rpcData, error: rpcErr } = await supabase.rpc('get_booked_time_slots', {
+          p_date: date,
+        })
+        if (!rpcErr && Array.isArray(rpcData)) {
+          return rpcData.map((s: any) => ({
+            startTime: (s.start_time || '').slice(0, 5),
+            endTime: (s.end_time || '').slice(0, 5),
+          }))
+        }
+      } catch {}
+
+      // 2. Direct query for confirmed/approved sessions
+      try {
+        const { data, error } = await supabase
+          .from('bookings')
+          .select('preferred_start_time, confirmed_start_time, confirmed_end_time, session_duration_hours, status')
+          .or(`confirmed_date.eq.${date},preferred_date.eq.${date}`)
+          .in('status', ['approved', 'confirmed'])
+
+        if (!error && Array.isArray(data)) {
+          return data.map((b) => {
+            const start = (b.confirmed_start_time || b.preferred_start_time || '').slice(0, 5)
+            let end = (b.confirmed_end_time || '').slice(0, 5)
+            if (!end && start) {
+              const [h, m] = start.split(':').map(Number)
+              const dur = Number(b.session_duration_hours) || 1
+              const endH = Math.min(23, h + Math.ceil(dur))
+              end = `${String(endH).padStart(2, '0')}:${String(m || 0).padStart(2, '0')}`
+            }
+            return { startTime: start, endTime: end }
+          })
+        }
+      } catch {}
+
+      return []
+    },
+    enabled: !!date,
+  })
+}
+

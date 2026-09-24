@@ -6,12 +6,13 @@ import { formatDate, formatTime, cn } from '../../lib/utils'
 import type { BookingStatus } from '../../types'
 import toast from 'react-hot-toast'
 
-const STATUS_OPTIONS = ['pending', 'under_review', 'approved', 'rejected', 'cancelled', 'completed'] as const
+const STATUS_OPTIONS = ['pending', 'under_review', 'approved', 'confirmed', 'rejected', 'cancelled', 'completed'] as const
 
 const STATUS_BADGE: Record<string, string> = {
   pending: 'badge-pending',
   under_review: 'badge-under_review',
   approved: 'badge-approved',
+  confirmed: 'badge-approved',
   rejected: 'badge-rejected',
   cancelled: 'badge-cancelled',
   completed: 'badge-completed',

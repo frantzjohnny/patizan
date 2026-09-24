@@ -3,16 +3,18 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useSearchParams, Link } from 'react-router-dom'
-import { Check, ChevronRight, ChevronLeft, CheckCircle2, AlertCircle, User, Mail, Phone, Calendar, Music2, FileText, Shield, Clock } from 'lucide-react'
+import { Check, ChevronRight, ChevronLeft, CheckCircle2, AlertCircle, User, Mail, Phone, Calendar, Music2, FileText, Shield, Clock, Tag } from 'lucide-react'
 import { InstagramIcon } from '../../components/icons/SocialIcons'
 import { useServices, useServicePackages } from '../../hooks/useServices'
-import { useCreateBooking } from '../../hooks/useBookings'
+import { useCreateBooking, useBookedSlotsForDate } from '../../hooks/useBookings'
+import { validateCoupon, recordCouponUsage, type CouponValidationResult } from '../../hooks/useCoupons'
+import { dispatchBookingNotifications, type PromoterNotificationData } from '../../lib/notifications'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabase'
 import { bookingFormSchema, type BookingFormData } from '../../lib/validations'
 import { formatCurrency, formatDate, formatTime, cn } from '../../lib/utils'
 import { STUDIO_POLICY_DEFAULT } from '../../lib/constants'
-import type { Service, ServicePackage, StudioAvailability, BlockedTime } from '../../types'
+import type { Service, ServicePackage, StudioAvailability, BlockedTime, Booking } from '../../types'
 import SEO from '../../components/common/SEO'
 import toast from 'react-hot-toast'
 
@@ -189,11 +191,13 @@ function StepPackage({
 function StepDateTime({
   availability,
   blockedTimes,
+  bookedSlots = [],
   value,
   onChange,
 }: {
   availability: StudioAvailability[]
   blockedTimes: BlockedTime[]
+  bookedSlots?: { startTime: string; endTime: string }[]
   value: { date: string; time: string; duration: number; people: number }
   onChange: (v: typeof value) => void
 }) {
@@ -217,6 +221,42 @@ function StepDateTime({
       (b) => b.date === dateStr && (b.is_all_day || b.is_full_day)
     )
     return !isBlocked
+  }
+
+  // Check if a specific time slot is booked or blocked
+  const isSlotBooked = (timeStr: string) => {
+    if (!value.date) return false
+
+    const [reqH, reqM] = timeStr.split(':').map(Number)
+    const reqStartMins = reqH * 60 + reqM
+    const reqEndMins = reqStartMins + (value.duration || 1) * 60
+
+    // Check booked slots from confirmed bookings
+    const hasBookingConflict = bookedSlots.some((slot) => {
+      const [bStartH, bStartM] = slot.startTime.split(':').map(Number)
+      const [bEndH, bEndM] = slot.endTime.split(':').map(Number)
+      const bStartMins = bStartH * 60 + (bStartM || 0)
+      const bEndMins = bEndH * 60 + (bEndM || 0)
+      return Math.max(reqStartMins, bStartMins) < Math.min(reqEndMins, bEndMins)
+    })
+
+    if (hasBookingConflict) return true
+
+    // Check blocked times
+    const hasBlockedConflict = blockedTimes.some((b) => {
+      if (b.date !== value.date) return false
+      if (b.is_all_day || b.is_full_day) return true
+      if (b.start_time && b.end_time) {
+        const [blStartH, blStartM] = b.start_time.split(':').map(Number)
+        const [blEndH, blEndM] = b.end_time.split(':').map(Number)
+        const blStartMins = blStartH * 60 + (blStartM || 0)
+        const blEndMins = blEndH * 60 + (blEndM || 0)
+        return Math.max(reqStartMins, blStartMins) < Math.min(reqEndMins, blEndMins)
+      }
+      return false
+    })
+
+    return hasBlockedConflict
   }
 
   return (
@@ -266,21 +306,33 @@ function StepDateTime({
         <div className="md:col-span-2">
           <label className="label-field mb-4">Preferred Start Time (ET)</label>
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2">
-            {TIMES.map((time) => (
-              <button
-                key={time}
-                type="button"
-                onClick={() => onChange({ ...value, time })}
-                className={cn(
-                  'py-3 rounded-xl text-xs font-heading font-semibold text-center transition-all duration-200',
-                  value.time === time
-                    ? 'bg-orange text-black font-bold shadow-glow-orange'
-                    : 'bg-charcoal border border-gray-border text-offwhite/70 hover:border-orange/40'
-                )}
-              >
-                {formatTime(time)}
-              </button>
-            ))}
+            {TIMES.map((time) => {
+              const booked = isSlotBooked(time)
+              return (
+                <button
+                  key={time}
+                  type="button"
+                  disabled={booked}
+                  onClick={() => onChange({ ...value, time })}
+                  className={cn(
+                    'py-3 rounded-xl text-xs font-heading font-semibold text-center transition-all duration-200 relative flex flex-col items-center justify-center',
+                    booked
+                      ? 'opacity-40 cursor-not-allowed bg-charcoal/40 border border-gray-border/30 text-gray-muted'
+                      : value.time === time
+                      ? 'bg-orange text-black font-bold shadow-glow-orange'
+                      : 'bg-charcoal border border-gray-border text-offwhite/70 hover:border-orange/40'
+                  )}
+                  title={booked ? 'This time slot is already booked or unavailable' : undefined}
+                >
+                  <span className={cn(booked && 'line-through')}>{formatTime(time)}</span>
+                  {booked && (
+                    <span className="text-[9px] font-mono uppercase tracking-wider text-red-400 mt-0.5 font-bold">
+                      BOOKED
+                    </span>
+                  )}
+                </button>
+              )
+            })}
           </div>
         </div>
 
@@ -402,12 +454,30 @@ function StepReview({
   formData,
   service,
   pkg,
+  basePrice,
+  appliedCoupon,
+  couponInput,
+  setCouponInput,
+  couponError,
+  setCouponError,
+  isApplyingCoupon,
+  onApplyCoupon,
+  onRemoveCoupon,
   register,
   errors,
 }: {
   formData: Partial<BookingFormData>
   service?: Service
   pkg?: ServicePackage
+  basePrice: number
+  appliedCoupon: CouponValidationResult | null
+  couponInput: string
+  setCouponInput: (v: string) => void
+  couponError: string | null
+  setCouponError: (v: string | null) => void
+  isApplyingCoupon: boolean
+  onApplyCoupon: () => void
+  onRemoveCoupon: () => void
   register: ReturnType<typeof useForm>['register']
   errors: Record<string, { message?: string }>
 }) {
@@ -425,7 +495,7 @@ function StepReview({
       <p className="text-gray-muted text-sm mb-8">Please review your session details and acknowledge the studio policy.</p>
 
       {/* Summary card */}
-      <div className="bg-charcoal border border-gray-border rounded-2xl p-6 mb-8 space-y-4">
+      <div className="bg-charcoal border border-gray-border rounded-2xl p-6 mb-6 space-y-4">
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
           <div>
             <p className="text-gray-muted text-xs uppercase tracking-wider mb-1">Service</p>
@@ -469,11 +539,111 @@ function StepReview({
           </div>
         </div>
 
-        {pkg?.price && (
-          <div className="pt-4 border-t border-gray-border flex justify-between items-center">
-            <span className="text-gray-muted text-sm">Session Estimate (50% Deposit Due on Confirmation)</span>
-            <span className="font-heading font-bold text-2xl text-orange">{formatCurrency(pkg.price)}</span>
+        {basePrice > 0 && (
+          <div className="pt-4 border-t border-gray-border space-y-2">
+            {appliedCoupon ? (
+              <>
+                <div className="flex justify-between items-center text-sm text-offwhite/70">
+                  <span>Original Total:</span>
+                  <span className="font-mono">{formatCurrency(appliedCoupon.original_amount ?? basePrice)}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm text-green-400">
+                  <span>Discount ({appliedCoupon.discount_percentage}% off):</span>
+                  <span className="font-mono">-{formatCurrency(appliedCoupon.discount_amount ?? 0)}</span>
+                </div>
+                <div className="flex justify-between items-center pt-2 border-t border-gray-border/50">
+                  <div>
+                    <span className="font-heading font-semibold text-offwhite text-sm block">Final Total</span>
+                    <span className="text-gray-muted text-xs">50% Deposit Due on Confirmation</span>
+                  </div>
+                  <span className="font-heading font-bold text-2xl text-orange">
+                    {formatCurrency(appliedCoupon.final_amount ?? basePrice)}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className="flex justify-between items-center">
+                <span className="text-gray-muted text-sm">Session Estimate (50% Deposit Due on Confirmation)</span>
+                <span className="font-heading font-bold text-2xl text-orange">{formatCurrency(basePrice)}</span>
+              </div>
+            )}
           </div>
+        )}
+      </div>
+
+      {/* Promo Code Input Box (Requirement 3) */}
+      <div className="bg-charcoal border border-gray-border rounded-2xl p-6 mb-6">
+        <label className="label-field mb-2 text-offwhite flex items-center gap-2">
+          <Tag size={14} className="text-orange" />
+          PROMO CODE
+        </label>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={couponInput}
+            onChange={(e) => {
+              setCouponInput(e.target.value.toUpperCase())
+              setCouponError(null)
+            }}
+            placeholder="Enter coupon code"
+            disabled={isApplyingCoupon || !!appliedCoupon}
+            className="input-field rounded-xl uppercase font-mono tracking-wider text-sm flex-1"
+          />
+          {appliedCoupon ? (
+            <button
+              type="button"
+              onClick={onRemoveCoupon}
+              className="px-4 py-2 rounded-xl text-xs font-heading font-semibold text-gray-muted hover:text-red-400 border border-gray-border hover:border-red-400/40 transition-colors"
+            >
+              Remove
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={onApplyCoupon}
+              disabled={!couponInput.trim() || isApplyingCoupon}
+              className="btn-primary rounded-xl text-xs px-5 py-2 flex items-center gap-2 disabled:opacity-50"
+            >
+              {isApplyingCoupon ? (
+                <>
+                  <span className="w-3.5 h-3.5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                  Checking...
+                </>
+              ) : (
+                'APPLY'
+              )}
+            </button>
+          )}
+        </div>
+
+        {appliedCoupon && (
+          <div className="mt-4 p-4 rounded-xl bg-green-500/10 border border-green-500/30 text-green-400 text-sm space-y-2">
+            <div className="flex items-center gap-2 font-medium">
+              <Check size={16} />
+              <span>✓ Coupon {appliedCoupon.coupon_code} applied</span>
+            </div>
+            <div className="pt-2 border-t border-green-500/20 text-xs font-mono space-y-1">
+              <div className="flex justify-between text-offwhite/80">
+                <span>Original Total:</span>
+                <span>{formatCurrency(appliedCoupon.original_amount ?? basePrice)}</span>
+              </div>
+              <div className="flex justify-between text-green-400">
+                <span>Discount ({appliedCoupon.discount_percentage}%):</span>
+                <span>-{formatCurrency(appliedCoupon.discount_amount ?? 0)}</span>
+              </div>
+              <div className="flex justify-between font-bold text-offwhite text-sm pt-1 border-t border-green-500/20">
+                <span>Final Total:</span>
+                <span className="text-orange">{formatCurrency(appliedCoupon.final_amount ?? basePrice)}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {couponError && (
+          <p className="mt-2 text-red-400 text-xs flex items-center gap-1.5">
+            <AlertCircle size={14} />
+            {couponError}
+          </p>
         )}
       </div>
 
@@ -575,6 +745,15 @@ export default function BookSessionPage() {
     },
   })
 
+  // Booked slots for selected date to prevent double bookings
+  const { data: bookedSlots = [] } = useBookedSlotsForDate(dateTime.date)
+
+  // Coupon state
+  const [couponInput, setCouponInput] = useState('')
+  const [appliedCoupon, setAppliedCoupon] = useState<CouponValidationResult | null>(null)
+  const [couponError, setCouponError] = useState<string | null>(null)
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
+
   const createBooking = useCreateBooking()
 
   const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<BookingFormData>({
@@ -591,6 +770,39 @@ export default function BookSessionPage() {
   const formData = watch()
   const selectedService = services.find((s) => s.id === selectedServiceId)
   const selectedPackage = packages.find((p) => p.id === selectedPackageId)
+
+  // Calculate base price
+  const basePrice =
+    selectedPackage?.price ||
+    ((selectedService?.starting_price || 0) * (dateTime.duration || 1))
+
+  const handleApplyCoupon = async () => {
+    if (!couponInput.trim()) return
+    setIsApplyingCoupon(true)
+    setCouponError(null)
+    try {
+      const result = await validateCoupon(couponInput, basePrice)
+      if (result.valid) {
+        setAppliedCoupon(result)
+        setCouponError(null)
+        toast.success(`Coupon ${result.coupon_code} applied!`)
+      } else {
+        setAppliedCoupon(null)
+        setCouponError(result.message || 'Invalid coupon code.')
+      }
+    } catch {
+      setCouponError('Invalid coupon code.')
+    } finally {
+      setIsApplyingCoupon(false)
+    }
+  }
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null)
+    setCouponInput('')
+    setCouponError(null)
+    toast('Coupon removed')
+  }
 
   // Sync URL search params and auto-advance step
   useEffect(() => {
@@ -647,7 +859,7 @@ export default function BookSessionPage() {
 
   const onSubmit = async (data: BookingFormData) => {
     try {
-      // Conflict check
+      // 1. Conflict check against database
       const { data: conflict } = await supabase.rpc('check_booking_conflict', {
         p_date: dateTime.date,
         p_start_time: dateTime.time,
@@ -660,7 +872,7 @@ export default function BookSessionPage() {
         return
       }
 
-      await createBooking.mutateAsync({
+      let finalBookingPayload: Partial<Booking> = {
         ...data,
         service_id: selectedServiceId,
         package_id: selectedPackageId && selectedPackageId !== 'custom' ? selectedPackageId : undefined,
@@ -669,7 +881,100 @@ export default function BookSessionPage() {
         session_duration_hours: dateTime.duration,
         number_of_people: dateTime.people,
         status: 'pending',
-      })
+        original_amount: basePrice,
+        discount_amount: 0,
+        final_amount: basePrice,
+      }
+
+      let promoterNotifData: PromoterNotificationData | null = null
+
+      // 2. Validate coupon securely on server/deterministic logic
+      if (appliedCoupon && appliedCoupon.valid) {
+        const recheck = await validateCoupon(appliedCoupon.coupon_code || '', basePrice)
+        if (!recheck.valid) {
+          toast.error(recheck.message || 'Coupon is no longer valid.')
+          setAppliedCoupon(null)
+          setCouponError(recheck.message || 'Coupon is no longer valid.')
+          return
+        }
+
+        finalBookingPayload = {
+          ...finalBookingPayload,
+          coupon_id: recheck.coupon_id,
+          coupon_code: recheck.coupon_code,
+          original_amount: recheck.original_amount,
+          discount_percentage: recheck.discount_percentage,
+          discount_amount: recheck.discount_amount,
+          final_amount: recheck.final_amount,
+          promoter_name: recheck.promoter_name,
+          promoter_phone: recheck.promoter_phone,
+          promoter_commission_percentage: recheck.commission_percentage,
+          promoter_commission_amount: recheck.commission_amount,
+        }
+
+        if (recheck.promoter_phone && recheck.coupon_code) {
+          promoterNotifData = {
+            couponCode: recheck.coupon_code,
+            promoterPhone: recheck.promoter_phone,
+            serviceName: selectedService?.name || 'Studio Session',
+            originalPrice: recheck.original_amount || basePrice,
+            discountPercentage: recheck.discount_percentage || 10,
+            discountAmount: recheck.discount_amount || 0,
+            finalAmount: recheck.final_amount || basePrice,
+            commissionAmount: recheck.commission_amount || 0,
+          }
+        }
+      }
+
+      // 3. Create booking record
+      const createdBooking = await createBooking.mutateAsync(finalBookingPayload)
+
+      // 4. Record coupon usage in database & cache (Requirement 9)
+      if (finalBookingPayload.coupon_code) {
+        try {
+          await recordCouponUsage({
+            coupon_id: finalBookingPayload.coupon_id || null,
+            coupon_code: finalBookingPayload.coupon_code,
+            promoter_name: finalBookingPayload.promoter_name || 'Promoter',
+            promoter_phone: finalBookingPayload.promoter_phone || '',
+            customer_name: data.full_name,
+            customer_phone: data.phone,
+            customer_email: data.email,
+            booking_id: createdBooking.id,
+            original_amount: finalBookingPayload.original_amount || basePrice,
+            discount_percentage: finalBookingPayload.discount_percentage || 10,
+            discount_amount: finalBookingPayload.discount_amount || 0,
+            final_amount: finalBookingPayload.final_amount || basePrice,
+            commission_percentage: finalBookingPayload.promoter_commission_percentage || 10,
+            commission_amount: finalBookingPayload.promoter_commission_amount || 0,
+          })
+        } catch {}
+      }
+
+      // 5. Dispatch Owner and Promoter notifications (Requirements 6 & 7)
+      try {
+        await dispatchBookingNotifications({
+          bookingId: createdBooking.id,
+          ownerData: {
+            customerName: data.full_name,
+            customerPhone: data.phone,
+            customerEmail: data.email,
+            serviceName: selectedService?.name || 'Studio Session',
+            selectedOptions: selectedPackage?.name || 'Standard Session',
+            preferredDate: dateTime.date,
+            preferredTime: dateTime.time,
+            originalPrice: finalBookingPayload.original_amount || basePrice,
+            couponCode: finalBookingPayload.coupon_code || 'None',
+            discountAmount: finalBookingPayload.discount_amount || 0,
+            finalAmount: finalBookingPayload.final_amount || basePrice,
+            promoterName: finalBookingPayload.promoter_name || 'None',
+            promoterCommission: finalBookingPayload.promoter_commission_amount || 0,
+            additionalNotes: data.additional_notes || 'None',
+          },
+          promoterData: promoterNotifData,
+        })
+      } catch {}
+
       setSubmitted(true)
     } catch {
       toast.error('Failed to submit booking. Please try again.')
@@ -737,6 +1042,7 @@ export default function BookSessionPage() {
                     <StepDateTime
                       availability={availability}
                       blockedTimes={blockedTimes}
+                      bookedSlots={bookedSlots}
                       value={dateTime}
                       onChange={setDateTime}
                     />
@@ -749,6 +1055,15 @@ export default function BookSessionPage() {
                       formData={{ ...formData, preferred_date: dateTime.date, preferred_start_time: dateTime.time, session_duration_hours: dateTime.duration, number_of_people: dateTime.people }}
                       service={selectedService}
                       pkg={selectedPackage}
+                      basePrice={basePrice}
+                      appliedCoupon={appliedCoupon}
+                      couponInput={couponInput}
+                      setCouponInput={setCouponInput}
+                      couponError={couponError}
+                      setCouponError={setCouponError}
+                      isApplyingCoupon={isApplyingCoupon}
+                      onApplyCoupon={handleApplyCoupon}
+                      onRemoveCoupon={handleRemoveCoupon}
                       register={register as ReturnType<typeof useForm>['register']}
                       errors={errors as Record<string, { message?: string }>}
                     />

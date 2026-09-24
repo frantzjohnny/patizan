@@ -680,3 +680,121 @@ BEGIN
   WHERE id IS NOT NULL;
 END;
 $$;
+
+-- ═══════════════════════════════════════════════════════════
+-- COUPONS, PROMOTERS & BOOKING NOTIFICATION SYSTEM
+-- ═══════════════════════════════════════════════════════════
+
+CREATE TABLE IF NOT EXISTS public.coupons (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  code TEXT NOT NULL UNIQUE,
+  promoter_name TEXT NOT NULL,
+  promoter_phone TEXT NOT NULL,
+  discount_percentage NUMERIC(5,2) NOT NULL DEFAULT 10.00,
+  commission_percentage NUMERIC(5,2) NOT NULL DEFAULT 10.00,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT check_discount_pct CHECK (discount_percentage >= 0 AND discount_percentage <= 100),
+  CONSTRAINT check_commission_pct CHECK (commission_percentage >= 0 AND commission_percentage <= 100),
+  CONSTRAINT check_code_non_empty CHECK (TRIM(code) <> ''),
+  CONSTRAINT check_promoter_name_non_empty CHECK (TRIM(promoter_name) <> ''),
+  CONSTRAINT check_promoter_phone_non_empty CHECK (TRIM(promoter_phone) <> '')
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_coupons_code_upper ON public.coupons (UPPER(TRIM(code)));
+CREATE INDEX IF NOT EXISTS idx_coupons_active ON public.coupons (is_active);
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'bookings' AND column_name = 'coupon_id') THEN
+    ALTER TABLE public.bookings ADD COLUMN coupon_id UUID REFERENCES public.coupons(id) ON DELETE SET NULL;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'bookings' AND column_name = 'coupon_code') THEN
+    ALTER TABLE public.bookings ADD COLUMN coupon_code TEXT;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'bookings' AND column_name = 'original_amount') THEN
+    ALTER TABLE public.bookings ADD COLUMN original_amount NUMERIC(10,2);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'bookings' AND column_name = 'discount_percentage') THEN
+    ALTER TABLE public.bookings ADD COLUMN discount_percentage NUMERIC(5,2);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'bookings' AND column_name = 'discount_amount') THEN
+    ALTER TABLE public.bookings ADD COLUMN discount_amount NUMERIC(10,2);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'bookings' AND column_name = 'final_amount') THEN
+    ALTER TABLE public.bookings ADD COLUMN final_amount NUMERIC(10,2);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'bookings' AND column_name = 'promoter_name') THEN
+    ALTER TABLE public.bookings ADD COLUMN promoter_name TEXT;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'bookings' AND column_name = 'promoter_phone') THEN
+    ALTER TABLE public.bookings ADD COLUMN promoter_phone TEXT;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'bookings' AND column_name = 'promoter_commission_percentage') THEN
+    ALTER TABLE public.bookings ADD COLUMN promoter_commission_percentage NUMERIC(5,2);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'bookings' AND column_name = 'promoter_commission_amount') THEN
+    ALTER TABLE public.bookings ADD COLUMN promoter_commission_amount NUMERIC(10,2);
+  END IF;
+END $$;
+
+CREATE TABLE IF NOT EXISTS public.coupon_usage (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  coupon_id UUID REFERENCES public.coupons(id) ON DELETE SET NULL,
+  coupon_code TEXT NOT NULL,
+  promoter_name TEXT NOT NULL,
+  promoter_phone TEXT NOT NULL,
+  customer_name TEXT NOT NULL,
+  customer_phone TEXT NOT NULL,
+  customer_email TEXT NOT NULL,
+  booking_id UUID REFERENCES public.bookings(id) ON DELETE CASCADE,
+  original_amount NUMERIC(10,2) NOT NULL,
+  discount_percentage NUMERIC(5,2) NOT NULL,
+  discount_amount NUMERIC(10,2) NOT NULL,
+  final_amount NUMERIC(10,2) NOT NULL,
+  commission_percentage NUMERIC(5,2) NOT NULL,
+  commission_amount NUMERIC(10,2) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_coupon_usage_coupon_id ON public.coupon_usage(coupon_id);
+CREATE INDEX IF NOT EXISTS idx_coupon_usage_booking_id ON public.coupon_usage(booking_id);
+CREATE INDEX IF NOT EXISTS idx_coupon_usage_code ON public.coupon_usage(coupon_code);
+
+CREATE TABLE IF NOT EXISTS public.whatsapp_notifications_log (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  booking_id UUID REFERENCES public.bookings(id) ON DELETE CASCADE,
+  recipient_type TEXT NOT NULL CHECK (recipient_type IN ('owner', 'promoter')),
+  recipient_phone TEXT NOT NULL,
+  message TEXT NOT NULL,
+  status TEXT DEFAULT 'pending' CHECK (status IN ('sent', 'pending_credentials', 'failed', 'simulated')),
+  provider TEXT DEFAULT 'whatsapp_business_api',
+  response_payload JSONB,
+  error_message TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.coupons ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.coupon_usage ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.whatsapp_notifications_log ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Admins manage coupons" ON public.coupons;
+CREATE POLICY "Admins manage coupons" ON public.coupons FOR ALL USING (public.is_admin());
+
+DROP POLICY IF EXISTS "Admins manage coupon_usage" ON public.coupon_usage;
+CREATE POLICY "Admins manage coupon_usage" ON public.coupon_usage FOR ALL USING (public.is_admin());
+
+DROP POLICY IF EXISTS "Public insert coupon_usage" ON public.coupon_usage;
+CREATE POLICY "Public insert coupon_usage" ON public.coupon_usage FOR INSERT WITH CHECK (TRUE);
+
+DROP POLICY IF EXISTS "Admins manage whatsapp_notifications_log" ON public.whatsapp_notifications_log;
+CREATE POLICY "Admins manage whatsapp_notifications_log" ON public.whatsapp_notifications_log FOR ALL USING (public.is_admin());
+
+DROP POLICY IF EXISTS "Public insert whatsapp_notifications_log" ON public.whatsapp_notifications_log;
+CREATE POLICY "Public insert whatsapp_notifications_log" ON public.whatsapp_notifications_log FOR INSERT WITH CHECK (TRUE);
+
+INSERT INTO public.coupons (code, promoter_name, promoter_phone, discount_percentage, commission_percentage, is_active)
+VALUES ('PATIZAN10', 'Michael', '+19592056476', 10.00, 10.00, TRUE)
+ON CONFLICT (code) DO NOTHING;
+

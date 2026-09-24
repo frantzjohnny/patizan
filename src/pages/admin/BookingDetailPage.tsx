@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
-import { ArrowLeft, Phone, Mail, Calendar } from 'lucide-react'
+import { ArrowLeft, Phone, Mail, Calendar, Tag } from 'lucide-react'
 import { InstagramIcon } from '../../components/icons/SocialIcons'
 import { useBooking, useUpdateBookingStatus } from '../../hooks/useBookings'
 import { formatDate, formatTime, formatCurrency } from '../../lib/utils'
@@ -11,6 +11,7 @@ const STATUS_BADGE: Record<string, string> = {
   pending: 'badge-pending',
   under_review: 'badge-under_review',
   approved: 'badge-approved',
+  confirmed: 'badge-approved',
   rejected: 'badge-rejected',
   cancelled: 'badge-cancelled',
   completed: 'badge-completed',
@@ -40,12 +41,16 @@ export default function BookingDetailPage() {
   const handleStatusChange = async (status: BookingStatus) => {
     if (!confirm(`Change status to "${status}"?`)) return
     try {
+      const isConfirming = status === 'approved' || status === 'confirmed'
+      const finalDate = confirmedDate || booking.confirmed_date || (isConfirming ? booking.preferred_date : undefined)
+      const finalTime = confirmedTime || booking.confirmed_start_time || (isConfirming ? booking.preferred_start_time : undefined)
+
       await updateStatus.mutateAsync({
         id: booking.id,
         status,
-        adminNotes,
-        confirmedDate: confirmedDate || undefined,
-        confirmedStartTime: confirmedTime || undefined,
+        adminNotes: adminNotes || undefined,
+        confirmedDate: finalDate,
+        confirmedStartTime: finalTime,
       })
       toast.success(`Status updated to ${status}`)
     } catch {
@@ -124,6 +129,52 @@ export default function BookingDetailPage() {
                 <p className="text-offwhite/70 text-sm">{booking.additional_notes}</p>
               </div>
             )}
+
+            {/* Promotional Coupon & Promoter Details (if used) */}
+            {booking.coupon_code && (
+              <div className="mt-4 pt-4 border-t border-gray-border bg-black/30 p-4 rounded-xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Tag size={16} className="text-orange" />
+                    <span className="font-heading font-semibold text-xs tracking-wider uppercase text-offwhite">
+                      Promotional Coupon Used
+                    </span>
+                  </div>
+                  <span className="font-mono font-bold text-xs bg-orange/20 text-orange px-2.5 py-0.5 rounded border border-orange/30">
+                    {booking.coupon_code}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs pt-1">
+                  <div>
+                    <span className="text-gray-muted block">Promoter</span>
+                    <span className="text-offwhite font-medium">{booking.promoter_name || 'N/A'}</span>
+                    {booking.promoter_phone && (
+                      <span className="text-gray-muted font-mono block text-[11px]">{booking.promoter_phone}</span>
+                    )}
+                  </div>
+                  <div>
+                    <span className="text-gray-muted block">Customer Discount</span>
+                    <span className="text-green-400 font-mono font-bold">
+                      -{formatCurrency(booking.discount_amount || 0)} ({booking.discount_percentage || 10}%)
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-muted block">Final Total</span>
+                    <span className="text-offwhite font-mono font-bold text-sm">
+                      {formatCurrency(booking.final_amount || booking.original_amount || 0)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-muted block">Promoter Commission</span>
+                    <span className="text-orange font-mono font-bold text-sm">
+                      {formatCurrency(booking.promoter_commission_amount || 0)}
+                    </span>
+                    <span className="text-gray-muted text-[11px] block">({booking.promoter_commission_percentage || 10}%)</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Confirm / Admin section */}
@@ -191,11 +242,14 @@ export default function BookingDetailPage() {
                   <button onClick={() => handleStatusChange('rejected')} className="px-4 py-2 bg-red-600 text-white rounded-xl text-sm font-heading font-semibold hover:bg-red-700 transition-colors">Reject</button>
                 </>
               )}
-              {booking.status === 'approved' && (
+              {(booking.status === 'approved' || booking.status === 'confirmed') && (
                 <>
                   <button onClick={() => handleStatusChange('completed')} className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-heading font-semibold hover:bg-emerald-700 transition-colors">Mark Completed</button>
-                  <button onClick={() => handleStatusChange('cancelled')} className="px-4 py-2 bg-gray-600 text-white rounded-xl text-sm font-heading font-semibold hover:bg-gray-700 transition-colors">Cancel</button>
+                  <button onClick={() => handleStatusChange('cancelled')} className="px-4 py-2 bg-gray-600 text-white rounded-xl text-sm font-heading font-semibold hover:bg-gray-700 transition-colors">Cancel Appointment</button>
                 </>
+              )}
+              {booking.status === 'cancelled' && (
+                <button onClick={() => handleStatusChange('pending')} className="px-4 py-2 bg-orange text-black rounded-xl text-sm font-heading font-semibold hover:bg-orange-light transition-colors">Reopen Request</button>
               )}
             </div>
           </div>

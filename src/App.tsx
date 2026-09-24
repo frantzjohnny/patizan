@@ -31,6 +31,7 @@ const BookingsPage = lazy(() => import('./pages/admin/BookingsPage'))
 const BookingDetailPage = lazy(() => import('./pages/admin/BookingDetailPage'))
 const CalendarPage = lazy(() => import('./pages/admin/CalendarPage'))
 const CustomersPage = lazy(() => import('./pages/admin/CustomersPage'))
+const CouponsAdminPage = lazy(() => import('./pages/admin/CouponsAdminPage'))
 const ServicesAdminPage = lazy(() => import('./pages/admin/ServicesAdminPage'))
 const HeroSlidesAdminPage = lazy(() => import('./pages/admin/HeroSlidesAdminPage'))
 const StudioPhotosAdminPage = lazy(() => import('./pages/admin/StudioPhotosAdminPage'))
@@ -175,6 +176,7 @@ function App() {
               <Route path="/admin/bookings/:id" element={<BookingDetailPage />} />
               <Route path="/admin/calendar" element={<CalendarPage />} />
               <Route path="/admin/customers" element={<CustomersPage />} />
+              <Route path="/admin/coupons" element={<CouponsAdminPage />} />
               <Route path="/admin/services" element={<ServicesAdminPage />} />
               <Route path="/admin/hero-slides" element={<HeroSlidesAdminPage />} />
               <Route path="/admin/studio-photos" element={<StudioPhotosAdminPage />} />

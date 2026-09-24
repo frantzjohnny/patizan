@@ -161,6 +161,7 @@ export type BookingStatus =
   | 'pending'
   | 'under_review'
   | 'approved'
+  | 'confirmed'
   | 'rejected'
   | 'cancelled'
   | 'completed'
@@ -185,10 +186,67 @@ export interface Booking {
   confirmed_date: string | null
   confirmed_start_time: string | null
   confirmed_end_time: string | null
+  coupon_id?: string | null
+  coupon_code?: string | null
+  original_amount?: number | null
+  discount_percentage?: number | null
+  discount_amount?: number | null
+  final_amount?: number | null
+  promoter_name?: string | null
+  promoter_phone?: string | null
+  promoter_commission_percentage?: number | null
+  promoter_commission_amount?: number | null
   created_at: string
   updated_at: string
   service?: Service
   package?: ServicePackage
+}
+
+export interface Coupon {
+  id: string
+  code: string
+  promoter_name: string
+  promoter_phone: string
+  discount_percentage: number
+  commission_percentage: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
+  uses_count?: number
+  total_discount_amount?: number
+  total_commission_amount?: number
+}
+
+export interface CouponUsage {
+  id: string
+  coupon_id: string | null
+  coupon_code: string
+  promoter_name: string
+  promoter_phone: string
+  customer_name: string
+  customer_phone: string
+  customer_email: string
+  booking_id: string
+  original_amount: number
+  discount_percentage: number
+  discount_amount: number
+  final_amount: number
+  commission_percentage: number
+  commission_amount: number
+  created_at: string
+}
+
+export interface WhatsAppNotificationLog {
+  id: string
+  booking_id: string
+  recipient_type: 'owner' | 'promoter'
+  recipient_phone: string
+  message: string
+  status: 'sent' | 'pending_credentials' | 'failed' | 'simulated'
+  provider?: string
+  response_payload?: any
+  error_message?: string
+  created_at: string
 }
 
 export interface BeatCategory {
