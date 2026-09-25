@@ -373,11 +373,14 @@ function StepCustomerInfo({ register, errors }: { register: ReturnType<typeof us
         <div>
           <label className="label-field">Full Name *</label>
           <div className="relative">
-            <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-muted" />
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-muted pointer-events-none flex items-center justify-center">
+              <User size={16} />
+            </span>
             <input
               {...register('full_name')}
               placeholder="Your full name"
-              className="input-field rounded-xl pl-10"
+              className="input-field input-field-icon-left rounded-xl"
+              style={{ paddingLeft: '2.85rem' }}
             />
           </div>
           {errors.full_name && <p className="text-red-400 text-xs mt-1">{errors.full_name.message}</p>}
@@ -386,11 +389,14 @@ function StepCustomerInfo({ register, errors }: { register: ReturnType<typeof us
         <div>
           <label className="label-field">Artist / Stage Name</label>
           <div className="relative">
-            <Music2 size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-muted" />
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-muted pointer-events-none flex items-center justify-center">
+              <Music2 size={16} />
+            </span>
             <input
               {...register('artist_name')}
               placeholder="Stage or Band Name (optional)"
-              className="input-field rounded-xl pl-10"
+              className="input-field input-field-icon-left rounded-xl"
+              style={{ paddingLeft: '2.85rem' }}
             />
           </div>
         </div>
@@ -398,12 +404,15 @@ function StepCustomerInfo({ register, errors }: { register: ReturnType<typeof us
         <div>
           <label className="label-field">Email Address *</label>
           <div className="relative">
-            <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-muted" />
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-muted pointer-events-none flex items-center justify-center">
+              <Mail size={16} />
+            </span>
             <input
               {...register('email')}
               type="email"
               placeholder="your@email.com"
-              className="input-field rounded-xl pl-10"
+              className="input-field input-field-icon-left rounded-xl"
+              style={{ paddingLeft: '2.85rem' }}
             />
           </div>
           {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
@@ -412,12 +421,15 @@ function StepCustomerInfo({ register, errors }: { register: ReturnType<typeof us
         <div>
           <label className="label-field">Phone Number *</label>
           <div className="relative">
-            <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-muted" />
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-muted pointer-events-none flex items-center justify-center">
+              <Phone size={16} />
+            </span>
             <input
               {...register('phone')}
               type="tel"
               placeholder="(959) 205-6476"
-              className="input-field rounded-xl pl-10"
+              className="input-field input-field-icon-left rounded-xl"
+              style={{ paddingLeft: '2.85rem' }}
             />
           </div>
           {errors.phone && <p className="text-red-400 text-xs mt-1">{errors.phone.message}</p>}
@@ -426,11 +438,14 @@ function StepCustomerInfo({ register, errors }: { register: ReturnType<typeof us
         <div>
           <label className="label-field">Instagram Handle</label>
           <div className="relative">
-            <InstagramIcon className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-muted" />
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-muted pointer-events-none flex items-center justify-center w-4 h-4">
+              <InstagramIcon width={16} height={16} className="w-4 h-4" />
+            </span>
             <input
               {...register('instagram')}
               placeholder="@yourhandle"
-              className="input-field rounded-xl pl-10"
+              className="input-field input-field-icon-left rounded-xl"
+              style={{ paddingLeft: '2.85rem' }}
             />
           </div>
         </div>

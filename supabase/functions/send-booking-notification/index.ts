@@ -51,7 +51,7 @@ serve(async (req: Request) => {
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL') || ''
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
-    const ownerWhatsappNumber = Deno.env.get('OWNER_WHATSAPP_NUMBER') || ''
+    const ownerWhatsappNumber = Deno.env.get('OWNER_WHATSAPP_NUMBER') || '+19592056476'
 
     // Optional Provider Credentials
     const whatsappToken = Deno.env.get('WHATSAPP_API_TOKEN') || ''
