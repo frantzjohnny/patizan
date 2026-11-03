@@ -768,6 +768,7 @@ export default function BookSessionPage() {
   const [appliedCoupon, setAppliedCoupon] = useState<CouponValidationResult | null>(null)
   const [couponError, setCouponError] = useState<string | null>(null)
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
+const [isSubmitting, setIsSubmitting] = useState(false)
 
   const createBooking = useCreateBooking()
 
@@ -873,20 +874,27 @@ export default function BookSessionPage() {
   }
 
   const onSubmit = async (data: BookingFormData) => {
+    // Prevent duplicate submissions
+    if (isSubmitting) return
+    setIsSubmitting(true)
     try {
-      // 1. Conflict check against database
+      // 1. Conflict check against database (boolean true => conflict)
       const { data: conflict } = await supabase.rpc('check_booking_conflict', {
         p_date: dateTime.date,
         p_start_time: dateTime.time,
         p_duration_hours: dateTime.duration,
       })
 
-      if (conflict) {
+      // Some RPCs return an object like { conflict: true }. Normalize.
+      const hasConflict = typeof conflict === 'object' && conflict !== null ? !!(conflict as any).conflict : !!conflict
+
+      if (hasConflict) {
         toast.error('The selected time slot conflicts with an existing session. Please pick another time.')
         setCurrentStep(3)
         return
       }
 
+      // 2. Assemble payload for the booking record
       let finalBookingPayload: Partial<Booking> = {
         ...data,
         service_id: selectedServiceId,
@@ -903,7 +911,7 @@ export default function BookSessionPage() {
 
       let promoterNotifData: PromoterNotificationData | null = null
 
-      // 2. Validate coupon securely on server/deterministic logic
+      // 3. Secure coupon validation (server‑side) if a coupon is applied
       if (appliedCoupon && appliedCoupon.valid) {
         const recheck = await validateCoupon(appliedCoupon.coupon_code || '', basePrice)
         if (!recheck.valid) {
@@ -912,7 +920,6 @@ export default function BookSessionPage() {
           setCouponError(recheck.message || 'Coupon is no longer valid.')
           return
         }
-
         finalBookingPayload = {
           ...finalBookingPayload,
           coupon_id: recheck.coupon_id,
@@ -926,7 +933,6 @@ export default function BookSessionPage() {
           promoter_commission_percentage: recheck.commission_percentage,
           promoter_commission_amount: recheck.commission_amount,
         }
-
         if (recheck.promoter_phone && recheck.coupon_code) {
           promoterNotifData = {
             couponCode: recheck.coupon_code,
@@ -941,10 +947,10 @@ export default function BookSessionPage() {
         }
       }
 
-      // 3. Create booking record
+      // 4. Persist booking in Supabase
       const createdBooking = await createBooking.mutateAsync(finalBookingPayload)
 
-      // 4. Record coupon usage in database & cache (Requirement 9)
+      // 5. Record coupon usage (if any) for analytics / idempotency
       if (finalBookingPayload.coupon_code) {
         try {
           await recordCouponUsage({
@@ -966,7 +972,7 @@ export default function BookSessionPage() {
         } catch {}
       }
 
-      // 5. Dispatch Owner and Promoter notifications (Requirements 6 & 7)
+      // 6. Notify admin (and promoter if applicable)
       try {
         await dispatchBookingNotifications({
           bookingId: createdBooking.id,
@@ -990,9 +996,13 @@ export default function BookSessionPage() {
         })
       } catch {}
 
+      // 7. Show confirmation UI
       setSubmitted(true)
-    } catch {
+    } catch (e) {
+      console.error(e)
       toast.error('Failed to submit booking. Please try again.')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -1114,10 +1124,10 @@ export default function BookSessionPage() {
                 ) : (
                   <button
                     type="submit"
-                    disabled={createBooking.isPending}
+                    disabled={isSubmitting}
                     className="btn-primary rounded-xl text-sm flex items-center gap-2 disabled:opacity-60"
                   >
-                    {createBooking.isPending ? (
+                    {isSubmitting ? (
                       <>
                         <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
                         Submitting...
