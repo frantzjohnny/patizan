@@ -49,6 +49,7 @@ const StudioInfoPage = lazy(() => import('./pages/admin/StudioInfoPage'))
 const SiteSettingsPage = lazy(() => import('./pages/admin/SiteSettingsPage'))
 const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage'))
 const SystemStatusPage = lazy(() => import('./pages/admin/SystemStatusPage'))
+const ManualBookingPage = lazy(() => import('./pages/admin/ManualBookingPage'))
 
 function RouteLoader() {
   return (
@@ -194,6 +195,7 @@ function App() {
               <Route path="/admin/settings" element={<SiteSettingsPage />} />
               <Route path="/admin/users" element={<AdminUsersPage />} />
               <Route path="/admin/system" element={<SystemStatusPage />} />
+<Route path="/admin/manual-booking" element={<ManualBookingPage />} />
             </Route>
           </Route>
 

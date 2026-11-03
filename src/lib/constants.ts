@@ -95,7 +95,8 @@ export const ADMIN_NAV = [
       { href: '/admin/bookings', label: 'Bookings', icon: 'Calendar' },
       { href: '/admin/calendar', label: 'Calendar', icon: 'CalendarDays' },
       { href: '/admin/customers', label: 'Customers', icon: 'Users' },
-      { href: '/admin/coupons', label: 'Coupons', icon: 'Tag' },
+        { href: '/admin/manual-booking', label: 'Manual Booking', icon: 'Phone' },
+        { href: '/admin/coupons', label: 'Coupons', icon: 'Tag' },
     ],
   },
   {
