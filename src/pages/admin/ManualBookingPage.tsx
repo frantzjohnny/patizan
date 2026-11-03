@@ -72,25 +72,68 @@ export default function ManualBookingPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold mb-4">Criar Reserva Manual</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input name="full_name" placeholder="Nome completo" value={form.full_name} onChange={handleChange} className="input" required />
-        <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} className="input" required />
-        <input name="phone" placeholder="Telefone" value={form.phone} onChange={handleChange} className="input" required />
-        <select name="service_id" onChange={handleChange} className="input" required>
-          <option value="">Selecione o Serviço</option>
-          {/* Populate options via a hook or static list */}
-        </select>
-        <select name="package_id" onChange={handleChange} className="input">
-          <option value="">Selecione o Pacote (opcional)</option>
-        </select>
-        <input name="preferred_date" type="date" value={form.preferred_date} onChange={handleChange} className="input" required />
-        <input name="preferred_start_time" type="time" value={form.preferred_start_time} onChange={handleChange} className="input" required />
-        <textarea name="notes" placeholder="Observações" value={form.notes} onChange={handleChange} className="input" />
-        <input name="coupon_code" placeholder="Código do Cupom" value={form.coupon_code} onChange={handleChange} className="input" />
-        <input name="promoter_phone" placeholder="Telefone do Promotor" value={form.promoter_phone} onChange={handleChange} className="input" />
-        <button type="submit" className="btn-primary">Salvar Reserva</button>
+    <div className="max-w-4xl mx-auto p-6 bg-charcoal border border-gray-border rounded-2xl space-y-6">
+      <h1 className="text-2xl font-heading font-bold text-offwhite mb-4">Criar Reserva Manual</h1>
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Full Name */}
+        <div className="space-y-1">
+          <label className="label-field" htmlFor="full_name">Nome completo *</label>
+          <input id="full_name" name="full_name" placeholder="Nome completo" value={form.full_name} onChange={handleChange} className="input-field rounded-xl" required />
+        </div>
+        {/* Email */}
+        <div className="space-y-1">
+          <label className="label-field" htmlFor="email">Email *</label>
+          <input id="email" name="email" type="email" placeholder="email@exemplo.com" value={form.email} onChange={handleChange} className="input-field rounded-xl" required />
+        </div>
+        {/* Phone */}
+        <div className="space-y-1">
+          <label className="label-field" htmlFor="phone">Telefone *</label>
+          <input id="phone" name="phone" placeholder="(99) 99999-9999" value={form.phone} onChange={handleChange} className="input-field rounded-xl" required />
+        </div>
+        {/* Service */}
+        <div className="space-y-1">
+          <label className="label-field" htmlFor="service_id">Serviço *</label>
+          <select id="service_id" name="service_id" onChange={handleChange} className="input-field rounded-xl" required>
+            <option value="">Selecione o Serviço</option>
+            {/* Populate options via a hook or static list */}
+          </select>
+        </div>
+        {/* Package */}
+        <div className="space-y-1">
+          <label className="label-field" htmlFor="package_id">Pacote (opcional)</label>
+          <select id="package_id" name="package_id" onChange={handleChange} className="input-field rounded-xl">
+            <option value="">Selecione o Pacote</option>
+          </select>
+        </div>
+        {/* Preferred Date */}
+        <div className="space-y-1">
+          <label className="label-field" htmlFor="preferred_date">Data desejada *</label>
+          <input id="preferred_date" name="preferred_date" type="date" value={form.preferred_date} onChange={handleChange} className="input-field rounded-xl" required />
+        </div>
+        {/* Preferred Start Time */}
+        <div className="space-y-1">
+          <label className="label-field" htmlFor="preferred_start_time">Horário *</label>
+          <input id="preferred_start_time" name="preferred_start_time" type="time" value={form.preferred_start_time} onChange={handleChange} className="input-field rounded-xl" required />
+        </div>
+        {/* Notes */}
+        <div className="md:col-span-2 space-y-1">
+          <label className="label-field" htmlFor="notes">Observações</label>
+          <textarea id="notes" name="notes" placeholder="Observações" value={form.notes} onChange={handleChange} className="input-field rounded-xl resize-none" rows={3} />
+        </div>
+        {/* Coupon Code */}
+        <div className="space-y-1">
+          <label className="label-field" htmlFor="coupon_code">Código do Cupom</label>
+          <input id="coupon_code" name="coupon_code" placeholder="Código do Cupom" value={form.coupon_code} onChange={handleChange} className="input-field rounded-xl" />
+        </div>
+        {/* Promoter Phone */}
+        <div className="space-y-1">
+          <label className="label-field" htmlFor="promoter_phone">Telefone do Promotor</label>
+          <input id="promoter_phone" name="promoter_phone" placeholder="Telefone do Promotor" value={form.promoter_phone} onChange={handleChange} className="input-field rounded-xl" />
+        </div>
+        {/* Submit Button */}
+        <div className="md:col-span-2 flex justify-end pt-4">
+          <button type="submit" className="btn-primary rounded-xl px-6 py-2.5">Salvar Reserva</button>
+        </div>
       </form>
     </div>
   )
