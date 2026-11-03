@@ -30,6 +30,8 @@ export default function ManualBookingPage() {
       const { data, error } = await supabase.from('bookings').insert({
         ...form,
         status: 'pending',
+        origin: 'manual',
+        
       }).select().single()
       if (error) throw error
 
