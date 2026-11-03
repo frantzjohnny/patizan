@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { dispatchBookingNotifications } from '../lib/notifications'
 import { supabase } from '../lib/supabase'
 import type { Booking, BookingStatus } from '../types'
 
@@ -112,7 +113,36 @@ export function useCreateBooking() {
         })
       } catch {}
 
-      return data
+      await dispatchBookingNotifications({
+          bookingId: data.id,
+          ownerData: {
+            customerName: data.full_name,
+            customerPhone: data.phone,
+            customerEmail: data.email,
+            serviceName: data.service?.name || '',
+            selectedOptions: data.package?.name,
+            preferredDate: data.preferred_date,
+            preferredTime: data.preferred_start_time?.slice(0,5) || '',
+            originalPrice: Number(data.original_amount) || 0,
+            couponCode: data.coupon_code,
+            discountAmount: Number(data.discount_amount) || 0,
+            finalAmount: Number(data.final_amount) || 0,
+            promoterName: data.promoter_name,
+            promoterCommission: Number(data.promoter_commission_amount) || 0,
+            additionalNotes: data.additional_notes,
+          },
+          promoterData: data.coupon_code && data.promoter_phone ? {
+            couponCode: data.coupon_code,
+            promoterPhone: data.promoter_phone,
+            serviceName: data.service?.name || '',
+            originalPrice: Number(data.original_amount) || 0,
+            discountPercentage: Number(data.discount_percentage) || 0,
+            discountAmount: Number(data.discount_amount) || 0,
+            finalAmount: Number(data.final_amount) || 0,
+            commissionAmount: Number(data.promoter_commission_amount) || 0,
+          } : null,
+        })
+        return data
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['bookings'] })
